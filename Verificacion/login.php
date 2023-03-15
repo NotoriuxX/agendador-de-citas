@@ -2,7 +2,7 @@
 
 session_start();
 
-include 'conexion.php';
+include '../conexion.php';
 
 $correo = $_POST['correo'];
 $password = $_POST['contraseña'];
@@ -16,7 +16,7 @@ $result = mysqli_stmt_get_result($stmt);
 
 if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
-    $stored_password = $row['pass_usu'];
+    $stored_password = $row['contraseña'];
     
     if (password_verify($password, $stored_password)) {
         $_SESSION['usuario'] = $correo;
@@ -35,7 +35,7 @@ if (mysqli_num_rows($result) > 0) {
     } else {
         echo '
         <script>
-            alert("Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
+            alert("..Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
             window.location = "../login.php";
         </script>
         ';
@@ -44,7 +44,7 @@ if (mysqli_num_rows($result) > 0) {
 } else {
     echo '
         <script>
-            alert("Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
+            alert(".Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
             window.location = "../login.php";
         </script>
         ';
