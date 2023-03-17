@@ -2,10 +2,17 @@
 
 session_start();
 
+ini_set('session.cookie_httponly', 1);
+
+if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    // El token CSRF no coincide, finaliza el script
+    die('Operación no autorizada');
+}
+
 include '../conexion.php';
 
-$correo = $_POST['correo'];
-$password = $_POST['contraseña'];
+$correo = htmlspecialchars($_POST['correo']);
+$contraseña = htmlspecialchars($_POST['contraseña']);
 
 $query = "SELECT * FROM usuarios WHERE correo_electronico = ?";
 $stmt = mysqli_prepare($conn, $query);
@@ -18,8 +25,8 @@ if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
     $stored_password = $row['contraseña'];
     
-    if (password_verify($password, $stored_password)) {
-        $_SESSION['usuario'] = $correo;
+    if (password_verify($contraseña, $stored_password)) {
+        $_SESSION['usuario'] = $row['id_usuario'];
         switch ($row['rol']) {
             case 'usuario_normal':
                 header('location: ../inicio.php');
@@ -35,7 +42,7 @@ if (mysqli_num_rows($result) > 0) {
     } else {
         echo '
         <script>
-            alert("..Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
+            alert("Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
             window.location = "../login.php";
         </script>
         ';
@@ -44,10 +51,11 @@ if (mysqli_num_rows($result) > 0) {
 } else {
     echo '
         <script>
-            alert(".Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
+            alert("Correo electrónico o contraseña incorrectos. Por favor, verifique los datos introducidos.");
             window.location = "../login.php";
         </script>
         ';
         exit();
 }
+
 ?>

@@ -1,21 +1,32 @@
 <?php
     include '../conexion.php';
 
-    $nombre = $_POST['nombre'];
-    $apellido = $_POST['apellido'];
-    $correo_electronico = $_POST['correo_electronico'];
-    $celular = "+569" . $_POST['celular'];
-    $password = $_POST['password'];
+    // Sanitizar y validar los datos del formulario
+    $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);
+    $apellido = filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_STRING);
+    $correo_electronico = filter_input(INPUT_POST, 'correo_electronico', FILTER_VALIDATE_EMAIL);
+    $celular = "+569" . filter_input(INPUT_POST, 'celular', FILTER_SANITIZE_NUMBER_INT);
+    $contraseña = filter_input(INPUT_POST, 'contraseña', FILTER_SANITIZE_STRING);
+
+    if (!$correo_electronico) {
+        echo '
+            <script>
+                alert("Correo electrónico no válido");
+                window.location = "../login.php";
+            </script>
+        ';
+        exit();
+    }
 
     // Cifrar la contraseña antes de insertarla en la base de datos
-    $password_hash = password_hash($password, PASSWORD_DEFAULT);
+    $contraseña_hash = password_hash($contraseña, PASSWORD_DEFAULT);
 
     // Establecer el rol como 'usuario_normal' para nuevos registros
     $rol = 'usuario_normal';
 
-    $query = "INSERT INTO usuarios(nombres, apellidos, correo_electronico, celular, contraseña, rol) VALUES(?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO usuarios(nombre_1, apellido_1, correo_electronico, celular, contraseña, rol) VALUES(?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, 'ssssss', $nombre, $apellido, $correo_electronico, $celular, $password_hash, $rol);
+    mysqli_stmt_bind_param($stmt, 'ssssss', $nombre, $apellido, $correo_electronico, $celular, $contraseña_hash, $rol);
 
     // Verifica si el correo electrónico ya existe
     $verificar_correo = mysqli_query($conn, "SELECT * FROM usuarios WHERE correo_electronico = '$correo_electronico'");
@@ -61,3 +72,4 @@
 
     mysqli_close($conn);
 ?>
+

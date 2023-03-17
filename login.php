@@ -1,17 +1,18 @@
 <?php
-
+    include 'conexion.php';
     session_start();
 
     if(isset($_SESSION['usuario'])){
         header("location: inicio.php");
     }
-    if(isset($get['cerrar_sesion'])){
+    if(isset($_GET['cerrar_sesion'])){
         session_unset();
 
         session_destroy();
     
     }
     
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 ?>
 <!DOCTYPE html>
 <html lang="en" >
@@ -44,21 +45,22 @@
                 <!--Formulario de Login y registro-->
                 <div class="contenedor__login-register">
                     <!--Login-->
-                    <form action="Verificacion/login.php" method="POST" class="formulario__login">
+                    <form action="Verificacion/login.php" method="POST" class="formulario__login" enctype="multipart/form-data">
                         <h2>Iniciar Sesión</h2>
                         <input type="text" placeholder="Correo Electronico" name="correo">
                         <div class="input-container">
                             <input type="password" placeholder="Contraseña" name="contraseña" id="passwordLogin" required>
                             <i class="fas fa-eye" id="togglePasswordLogin"></i>
                         </div>
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         <button>Entrar</button>
                     </form>
 
                     <!--Register-->
-                    <form action="Verificacion/registro.php" method="POST" class="formulario__register">
+                    <form action="Verificacion/registro.php" method="POST" class="formulario__register" enctype="multipart/form-data">
                         <h2>Regístrarse</h2>
-                        <input type="text" placeholder="Nombres" name="nombre" require>
-                        <input type="text" placeholder="Apellidos" name="apellido" require>
+                        <input type="text" placeholder="Nombre" name="nombre" require>
+                        <input type="text" placeholder="Apellido" name="apellido" require>
                         <input type="text" placeholder="Correo Electronico" name="correo_electronico" require>
                         <input type="text" placeholder="Celular" name="celular" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" maxlength="8" class="celular-input" require>
                         <div class="input-container">
