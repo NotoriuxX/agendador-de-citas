@@ -156,26 +156,38 @@ if (window.location.pathname.endsWith('perfil.php')) {
     });
 
 
-        const perfilBtn = document.getElementById('perfil-btn');
-        const cartaPresentacionBtn = document.getElementById('carta-presentacion-btn');
-        const formulario1 = document.querySelector('.formulario_1');
-        const formulario2 = document.querySelector('.formulario_2');
-
-        function toggleFormVisibility() {
-            if (formulario1.classList.contains('is-active')) {
-            formulario1.classList.remove('is-active');
-            formulario1.style.display = 'none';
-            formulario2.style.display = 'block';
-            perfilBtn.classList.remove('is-active');
-            cartaPresentacionBtn.classList.add('is-active');
-            } else {
-            formulario1.classList.add('is-active');
-            formulario1.style.display = 'block';
-            formulario2.style.display = 'none';
-            perfilBtn.classList.add('is-active');
-            cartaPresentacionBtn.classList.remove('is-active');
-            }
-        }
+    const perfilBtn = document.getElementById('perfil-btn');
+    const cartaPresentacionBtn = document.getElementById('carta-presentacion-btn');
+    const formulario1 = document.querySelector('.formulario_1');
+    const formulario2 = document.querySelector('.formulario_2');
+    
+    function toggleFormVisibility() {
+      if (formulario1.classList.contains('is-active')) {
+        formulario1.classList.remove('is-active');
+        formulario1.style.display = 'none';
+        formulario2.style.display = 'block';
+        perfilBtn.classList.remove('is-active');
+        cartaPresentacionBtn.classList.add('is-active');
+        localStorage.setItem('activeForm', 'carta_presentacion');
+      } else {
+        formulario1.classList.add('is-active');
+        formulario1.style.display = 'block';
+        formulario2.style.display = 'none';
+        perfilBtn.classList.add('is-active');
+        cartaPresentacionBtn.classList.remove('is-active');
+        localStorage.setItem('activeForm', 'perfil');
+      }
+    }
+    
+    function restoreFormVisibility() {
+      const activeForm = localStorage.getItem('activeForm');
+      if (activeForm === 'carta_presentacion') {
+        toggleFormVisibility();
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', restoreFormVisibility);
+    
 
   perfilBtn.addEventListener('click', toggleFormVisibility);
   cartaPresentacionBtn.addEventListener('click', toggleFormVisibility);
@@ -289,6 +301,57 @@ document.getElementById("visibilityToggle").addEventListener("change", updateVis
     
 
 
+//-------------------------------------ALERTAS----------------------------------
+document.addEventListener('DOMContentLoaded', function() {
+    const alertMessage = document.getElementById('alert-message');
 
+    if (alertMessage) {
+        setTimeout(function() {
+            alertMessage.remove();
+        }, 3000);
+    }
+});
+
+
+
+//--------------verifica que se modifico el formulario-----------------------------
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form1 = document.querySelector('.formulario_1');
+    const form2 = document.getElementById('perfilForm');
+    const forms = [form1, form2];
+
+    const updateButton1 = document.getElementById('update-button');
+    const updateButton2 = document.getElementById('update-button-2');
+    const updateButtons = [updateButton1, updateButton2];
+
+    forms.forEach((form, index) => {
+        const inputs = form.querySelectorAll('input');
+        let isFormModified = false;
+
+        function checkFormChanges() {
+            for (const input of inputs) {
+                if (input.value !== input.defaultValue) {
+                    isFormModified = true;
+                    break;
+                } else {
+                    isFormModified = false;
+                }
+            }
+            updateButtons[index].disabled = !isFormModified;
+        }
+
+        for (const input of inputs) {
+            input.addEventListener('input', checkFormChanges);
+        }
+
+        window.addEventListener('beforeunload', function(event) {
+            if (isFormModified) {
+                event.preventDefault();
+                event.returnValue = '¿Seguro que quieres salir sin guardar los cambios?';
+            }
+        });
+    });
+});
 
 }

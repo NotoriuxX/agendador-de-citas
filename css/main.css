@@ -653,10 +653,7 @@ input#correo_electronico, input#contraseña {
     box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.2);
   }
   
-  .card[data-state="#about"] {
-    height: 450px;
-  }
-  
+
   .card[data-state="#about"] .card-main {
     padding-top: 0;
   }
@@ -787,7 +784,8 @@ input#correo_electronico, input#contraseña {
     display: flex;
     padding-top: 10px;
     flex-direction: column;
-  }
+    padding: 15px;
+}
   
   .card-subtitle {
     font-weight: 700;
@@ -1057,18 +1055,18 @@ input#correo_electronico, input#contraseña {
   }
   
   .card[data-state="#about"] {
-    height: 450px;
+    height: auto;
     margin: 28px 0;
 }
 .messages-section.profil {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 29px 0;
-    FONT-WEIGHT: 100;
-    width: auto !important;
-    overflow-y: auto;
-    max-height: 717px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 29px 0;
+  FONT-WEIGHT: 100;
+  width: auto !important;
+  overflow-y: auto;
+  height: fit-content;
 }
 
 /* .slideThree */
@@ -1153,4 +1151,19 @@ input#correo_electronico, input#contraseña {
 }
 form.formulario_2 input, textarea {
     margin: 10px;
+}
+/*---------------alerta-------------------------*/
+.alert.alert-success {
+  color: white;
+  background: green;
+  padding: 5px;
+  border-radius: 12px;
+  margin: 15px;
+}
+.alert.alert-error {
+  color: white;
+  background: #ff2929;
+  padding: 5px;
+  border-radius: 12px;
+  margin: 15px;
 }
