@@ -2,39 +2,25 @@
 
 CREATE TABLE clientes (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
-    nombres VARCHAR(150) NOT NULL,
-    apellidos VARCHAR(150) NOT NULL,
+    nombre VARCHAR(150) NOT NULL,
+    apellido VARCHAR(150) NOT NULL,
     celular VARCHAR(15),
     correo_electronico VARCHAR(150) UNIQUE NOT NULL
 );
-CREATE TABLE fechas_horarios_disponibles (
-    id_fecha_hora_disponible INT AUTO_INCREMENT PRIMARY KEY,
-    fecha DATE NOT NULL,
-    hora TIME NOT NULL,
-    cantidad_reservas_permitidas INT NOT NULL
-);
-CREATE TABLE reservas (
-    id_reserva INT AUTO_INCREMENT PRIMARY KEY,
-    id_cliente INT,
-    estado_pago ENUM('pagado', 'pendiente') NOT NULL,
-    comentarios TEXT,
-    -- otros campos relevantes para la reserva
-    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
-);
+
+
 CREATE TABLE usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    id_cliente INT,
-    imagen_perfil VARCHAR(255),
     nombre_1 VARCHAR(50) NOT NULL,
     nombre_2 VARCHAR(50),
     apellido_1 VARCHAR(50) NOT NULL,
     apellido_2 VARCHAR(50),
     correo_electronico VARCHAR(150) UNIQUE NOT NULL,
+    imagen_perfil VARCHAR(255),
     rol ENUM('administrador', 'usuario_normal') NOT NULL,
     celular VARCHAR(20),
     telefono VARCHAR(20),
-    contraseña VARCHAR(255) NOT NULL,
-    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+    contraseña VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE cartas_presentacion (
@@ -47,10 +33,39 @@ CREATE TABLE cartas_presentacion (
     instagram VARCHAR(255),
     linkedin VARCHAR(255),
     direccion VARCHAR(255),
-    numero_cel VARCHAR(20),
-    email VARCHAR(150),
+    visibilidad ENUM('ocultar', 'visible') DEFAULT 'visible', -- Agrega la columna de visibilidad
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
+
+
+CREATE TABLE fechas_horarios_disponibles (
+    id_fecha_hora_disponible INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    hora TIME NOT NULL,
+    cantidad_reservas_permitidas INT NOT NULL
+);
+
+
+CREATE TABLE permisos (
+    id_permiso INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario_dueño INT,
+    id_usuario_permiso INT,
+    tipo_permiso ENUM('editar', 'agregar', 'eliminar_citas') NOT NULL,
+    informacion_relevante TEXT,
+    FOREIGN KEY (id_usuario_dueño) REFERENCES usuarios(id_usuario),
+    FOREIGN KEY (id_usuario_permiso) REFERENCES usuarios(id_usuario)
+);
+
+
+CREATE TABLE reservas (
+    id_reserva INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT,
+    estado_pago ENUM('pagado', 'pendiente') NOT NULL,
+    comentarios TEXT,
+    -- otros campos relevantes para la reserva
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+);
+
 
 
 CREATE TABLE datos_adicionales_tipos (
@@ -86,17 +101,3 @@ CREATE TABLE horarios (
     FOREIGN KEY (id_usuario_normal) REFERENCES usuarios(id_usuario),
     FOREIGN KEY (id_reserva) REFERENCES reservas(id_reserva)
 );
-
-
-
-CREATE TABLE permisos (
-    id_permiso INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario_dueño INT,
-    id_usuario_permiso INT,
-    tipo_permiso ENUM('editar', 'agregar', 'eliminar_citas') NOT NULL,
-    informacion_relevante TEXT,
-    FOREIGN KEY (id_usuario_dueño) REFERENCES usuarios(id_usuario),
-    FOREIGN KEY (id_usuario_permiso) REFERENCES usuarios(id_usuario)
-);
-
-

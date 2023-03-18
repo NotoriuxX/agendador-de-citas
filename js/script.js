@@ -189,19 +189,66 @@ if (window.location.pathname.endsWith('perfil.php')) {
     }
     
 
-    document.getElementById("insert-img-btn").addEventListener("click", function() {
-        document.getElementById("hidden-file-input").click();
-        const file = this.files[0];
+    document.getElementById("insert-img-btn").addEventListener("click", function () {
+        const hiddenFileInput = document.getElementById("hidden-file-input");
+        hiddenFileInput.click();
     
-        if (file) {
-            // Subir el archivo y guardar su dirección en la base de datos
-            uploadImage(file);
-        }
+        hiddenFileInput.addEventListener("change", function () {
+            const file = this.files[0];
+    
+            if (file) {
+                const formData = new FormData();
+                formData.append('imagen_perfil', file);
+                formData.append('user_id', userId);
+    
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'Verificacion/upload_image.php', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+    
+                        if (response.status === 'success') {
+                            const imgProfile = document.querySelector('.img_profile');
+                            imgProfile.src = 'img/' + response.file_name;
+                            location.reload(); // Agrega esta línea para recargar la página
+                        } else {
+                            // Muestra el mensaje de error
+                            alert(response.message);
+                        }
+                    }
+                };
+    
+                xhr.send(formData);
+            }
+        });
     });
     
-    document.getElementById("delete-img-btn").addEventListener("click", function() {
-        // Aquí va el código para eliminar la imagen
+    
+    
+    document.getElementById("delete-img-btn").addEventListener("click", function () {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "Verificacion/delete_image.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+    
+                if (response.status === "success") {
+                    const imgProfile = document.querySelector(".img_profile");
+                    imgProfile.src = "img/user.jpg";
+                    location.reload(); // Agrega esta línea para recargar la página
+                } else {
+                    alert(response.message);
+                }
+            }
+        };
+    
+        xhr.send(`user_id=${userId}`);
     });
+    
+
+
     
     document.getElementById("close-btn").addEventListener("click", function(event) {
         event.stopPropagation(); // Detener la propagación del evento para evitar que se muestren de nuevo los botones
@@ -209,8 +256,39 @@ if (window.location.pathname.endsWith('perfil.php')) {
     });
     
 
-    
+// -------------------visible ocultar-------------------
+function updateVisibilityStatus() {
+    const isChecked = document.getElementById("visibilityToggle").checked;
+    const visibilityStatus = isChecked ? "visible" : "ocultar";
+
+    // Reemplaza la URL con la dirección de tu archivo PHP para procesar la actualización de la visibilidad
+    const updateUrl = "Verificacion/update_visibility.php";
+
+    fetch(updateUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ visibility: visibilityStatus }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            console.log("Visibilidad actualizada:", visibilityStatus);
+        } else {
+            console.error("Error al actualizar la visibilidad:", data.message);
+        }
+    })
+    .catch((error) => {
+        console.error("Error al actualizar la visibilidad:", error);
+    });
 }
 
+document.getElementById("visibilityToggle").addEventListener("change", updateVisibilityStatus);
+
+    
 
 
+
+
+}

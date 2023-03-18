@@ -1,39 +1,50 @@
 <?php
-    // Cambia esta variable según la configuración de tu servidor
-    $uploadDirectory = "img/";
+// Conectar a la base de datos y obtener la variable $conn
+require '../conexion.php';
+session_start();
 
-    $response = [
-        "success" => false,
-        "message" => "",
-        "imageName" => "",
-    ];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {
+    $file = $_FILES['imagen_perfil'];
+    $userId = $_POST['user_id'];
 
-    if (isset($_FILES["image"])) {
-        $file = $_FILES["image"];
-        $fileName = basename($file["name"]);
-        $targetFile = $uploadDirectory . $fileName;
+    // Validar y guardar la imagen
+    $fileName = basename($file['name']);
+    $fileTmpName = $file['tmp_name'];
+    $fileSize = $file['size'];
+    $fileError = $file['error'];
+    $fileType = $file['type'];
 
-        // Verificar si el archivo es una imagen
-        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-        $check = getimagesize($file["tmp_name"]);
-        if (!$check) {
-            $response["message"] = "El archivo no es una imagen.";
-            echo json_encode($response);
-            exit;
-        }
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $allowed = array('jpg', 'jpeg', 'png', 'gif');
 
-        // Subir el archivo al servidor
-        if (move_uploaded_file($file["tmp_name"], $targetFile)) {
-            $response["success"] = true;
-            $response["message"] = "La imagen se ha subido correctamente.";
-            $response["imageName"] = $fileName;
+    if (in_array($fileExt, $allowed)) {
+        if ($fileError === 0) {
+            if ($fileSize < 5000000) { // 5MB
+                $fileNameNew = uniqid('', true) . "." . $fileExt;
+                $fileDestination = '../img/' . $fileNameNew;
+
+                if (move_uploaded_file($fileTmpName, $fileDestination)) {
+                    // Actualizar la base de datos con el nombre de la imagen
+                    //  código para actualizar la base de datos aquí
+                    $sql = "UPDATE usuarios SET imagen_perfil = 'img/$fileNameNew' WHERE id_usuario = $userId";
+                    mysqli_query($conn, $sql);
+                    header('Content-Type: application/json');
+                    echo json_encode(['status' => 'success', 'message' => 'Imagen subida con éxito', 'file_name' => $fileNameNew]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Error al subir la imagen']);
+                }
+            } else {
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'El tamaño de la imagen es demasiado grande']);
+            }
         } else {
-            $response["message"] = "Error al subir la imagen.";
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Error al subir la imagen']);
         }
     } else {
-        $response["message"] = "No se recibió ninguna imagen.";
+        
+        echo json_encode(['status' => 'error', 'message' => 'Formato de archivo no permitido']);
     }
-
-    header("Content-Type: application/json");
-    echo json_encode($response);
+}
 ?>
+

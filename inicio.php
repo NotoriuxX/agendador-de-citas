@@ -492,5 +492,6 @@ if (mysqli_num_rows($result) > 0) {
         </main>
 
         <script src="js/script.js"></script>
+      
 </body>
 </html>
