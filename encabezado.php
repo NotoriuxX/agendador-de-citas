@@ -2,13 +2,16 @@
 $current_url = basename($_SERVER['REQUEST_URI']);
 $nav_links = [
     'home' => 'inicio.php',
-    'link2' => '/link2',
-    'link3' => '/link3',
-    'link4' => '/link4',
+    'link2' => '#',
+    'calendario' => 'calendario.php',
+    'link4' => '#',
 ];
+
 ?>
 
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +24,7 @@ $nav_links = [
 <body>
         <nav>
             <div class="app-header-left">
-            <a href="" class="app-navbar-link">
+            <a href="" class="app-navbar-link" id="toggle-link">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
 			</svg>
@@ -45,11 +48,16 @@ $nav_links = [
                     </svg>
                 </button>
                 
-                <button class="add-btn" title="Add New Project">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <button class="add-btn" title="Add New Project" onclick="toggleDropdown(event)">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 </button>
+                <div id="dropdown" class="dropdown">
+                <a href="crear_formulario.php" id="a_form">Crear formulario</a>
+                <a href="agendar_citas.php" id="a_cita">Crear agendar citas</a>
+                </div>
                 <button class="notification-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -63,7 +71,7 @@ $nav_links = [
             </div>
         </nav>
         <main>
-        <div class="app-sidebar">
+        <div class="app-sidebar none">
                     <a href="<?php echo $nav_links['home']; ?>" class="app-sidebar-link<?php echo $current_url === $nav_links['home'] ? ' active' : ''; ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -75,7 +83,7 @@ $nav_links = [
                         <path d="M21.21 15.89A10 10 0 118 2.83M22 12A10 10 0 0012 2v10z"></path>
                         </svg>
                     </a>
-                    <a href="<?php echo $nav_links['link3']; ?>" class="app-sidebar-link<?php echo $current_url === $nav_links['link3'] ? ' active' : ''; ?>">
+                    <a href="<?php echo $nav_links['calendario']; ?>" class="app-sidebar-link<?php echo $current_url === $nav_links['calendario'] ? ' active' : ''; ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -95,4 +103,5 @@ $nav_links = [
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"></path>
             </svg>
             </a>
+            </div>
             </div>

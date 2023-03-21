@@ -1,32 +1,16 @@
 <?php
 session_start();
+include 'conexion.php';
+
 include 'Verificacion/verificar_sesion.php';
 
-include 'conexion.php';
-   
-$userId = $_SESSION['usuario'];
-
-$query = "SELECT * FROM usuarios WHERE id_usuario = ?";
-$stmt = mysqli_prepare($conn, $query);
-
-mysqli_stmt_bind_param($stmt, 'i', $userId);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-
-if (mysqli_num_rows($result) > 0) {
-    $user = mysqli_fetch_assoc($result);
-} else {
-    // Usuario no encontrado
-    header("Location: login.php");
-    exit();
-}
 
 ?>
 <!DOCTYPE html>
 <html lang="en" >
 <?php include 'encabezado.php'; ?>  
 
-            </div>
+           
             <div class="projects-section">
                 <div class="projects-section-header">
                     <p>Projects</p>
@@ -48,7 +32,7 @@ if (mysqli_num_rows($result) > 0) {
                     </div>
                     </div>
                     <div class="view-actions">
-                    <button class="view-btn list-view" title="List View">
+                    <button id="listViewBtn" class="view-btn list-view" title="List View">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list">
                         <line x1="8" y1="6" x2="21" y2="6"></line>
                         <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -57,7 +41,7 @@ if (mysqli_num_rows($result) > 0) {
                         <line x1="3" y1="12" x2="3.01" y2="12"></line>
                         <line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                     </button>
-                    <button class="view-btn grid-view active" title="Grid View">
+                    <button id="gridViewBtn" class="view-btn grid-view active" title="Grid View">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-grid">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
@@ -402,6 +386,9 @@ if (mysqli_num_rows($result) > 0) {
                     </div>
                 </div>
                 </div>
+                <div class="app-sidebar vacio">
+                    
+            </div>
         </main>
 
         <script src="js/script.js"></script>

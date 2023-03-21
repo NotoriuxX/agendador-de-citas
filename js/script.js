@@ -25,6 +25,24 @@ function uploadImage(file) {
         console.error("Error al subir la imagen:", error);
     });
 }
+function toggleDropdown(event) {
+    event.stopPropagation();
+    var dropdown = document.getElementById("dropdown");
+    var button = event.currentTarget;
+    var buttonRect = button.getBoundingClientRect();
+    
+    dropdown.style.left = buttonRect.left + "px";
+    dropdown.style.top = buttonRect.bottom + "px";
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  }
+  
+  
+  document.addEventListener("click", function() {
+    var dropdown = document.getElementById("dropdown");
+    dropdown.style.display = "none";
+  });
+  
+
 
 
 //---------------------------------login------------------------------
@@ -115,6 +133,62 @@ function togglePasswordVisibility(passwordId, eyeIcon) {
     }
 }
 }
+/*--------------------listView-------------------------*/
+if (window.location.pathname.endsWith('inicio.php')) {
+
+
+    function applyListView() {
+        // Remueve la clase "active" del botón de "Grid View"
+        document.getElementById("gridViewBtn").classList.remove("active");
+      
+        // Agrega la clase "active" al botón de "List View"
+        document.getElementById("listViewBtn").classList.add("active");
+      
+        // Agrega la clase "active" a los elementos relevantes
+        const elements = document.querySelectorAll(".project-box-wrapper, .project-boxes.jsGridView, .project-box, .project-box-header, .more-wrapper, .project-box-content-header, .box-content-header, .box-content-subheader, .project-box-footer, .box-progress-wrapper");
+        elements.forEach(element => {
+          element.classList.add("active");
+        });
+      }
+      
+      function applyGridView() {
+        // Remueve la clase "active" del botón de "List View"
+        document.getElementById("listViewBtn").classList.remove("active");
+      
+        // Agrega la clase "active" al botón de "Grid View"
+        document.getElementById("gridViewBtn").classList.add("active");
+      
+        // Remueve la clase "active" de los elementos relevantes
+        const elements = document.querySelectorAll(".project-box-wrapper, .project-boxes.jsGridView, .project-box, .project-box-header, .more-wrapper, .project-box-content-header, .box-content-header, .box-content-subheader, .project-box-footer, .box-progress-wrapper");
+        elements.forEach(element => {
+          element.classList.remove("active");
+        });
+      }
+      
+      document.getElementById("listViewBtn").addEventListener("click", function() {
+        applyListView();
+        localStorage.setItem("view", "list");
+      });
+      
+      document.getElementById("gridViewBtn").addEventListener("click", function() {
+        applyGridView();
+        localStorage.setItem("view", "grid");
+      });
+      
+      // Cargar la selección guardada al cargar la página
+      document.addEventListener("DOMContentLoaded", function() {
+        const savedView = localStorage.getItem("view");
+        if (savedView === "list") {
+          applyListView();
+        } else if (savedView === "grid") {
+          applyGridView();
+        }
+      });
+      
+
+
+}
+
 /*-----DACK-----*/
 function toggleDarkMode() {
     const bodyElement = document.querySelector('html');
@@ -355,3 +429,168 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 }
+if (window.location.pathname.endsWith('agendar_citas.php')) {
+   
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verifica si los elementos existen antes de agregar los controladores de eventos
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+        const generalizadoRadio = document.querySelector('input[name="option"][value="generalizado"]');
+        const personalizadoRadio = document.querySelector('input[name="option"][value="personalizado"]');
+        const agregarDias = document.getElementById('agregar-dias');
+        const eliminarDias = document.getElementById('eliminar-dias');
+    
+        if (dateFrom && dateTo) {
+            dateFrom.addEventListener('input', updateCustomDates);
+            dateTo.addEventListener('input', updateCustomDates);
+        }
+    
+        if (generalizadoRadio && personalizadoRadio) {
+            generalizadoRadio.addEventListener('change', () => showOptions('generalizado'));
+            personalizadoRadio.addEventListener('change', () => showOptions('personalizado'));
+    
+            // Agrega el controlador de eventos onclick en lugar de usar el atributo HTML onclick
+            document.querySelectorAll('input[type="radio"][name="option"]').forEach(function(radio) {
+                radio.addEventListener('click', function() {
+                    showOptions(this.value);
+                });
+            });
+        }
+    
+        if (agregarDias && eliminarDias) {
+            agregarDias.addEventListener('change', togglePersonalizado);
+            eliminarDias.addEventListener('change', togglePersonalizado);
+        }
+    });
+    
+    
+    function updateCustomDates() {
+        const dateFrom = document.getElementById('date-from').value;
+        const dateTo = document.getElementById('date-to').value;
+    
+        if (dateFrom && dateTo) {
+            document.querySelector('.option').style.display = 'block';
+        } else {
+            document.querySelector('.option').style.display = 'none';
+        }
+    }
+    
+    function showOptions(option) {
+        const generalizado = document.querySelector('.generalizado');
+        const personalizado = document.querySelector('.personalizado');
+    
+        if (option === 'generalizado' && personalizado.style.display === 'block') {
+            if (hasSelectedOptions('personalizado') && !confirm('¿Seguro que quieres salir? Se borrarán los datos que ingresó en los días personalizados.')) {
+                return;
+            }
+            clearPersonalizedDates();
+            clearWeekdaySelection('personalizado');
+        }
+    
+        if (option === 'generalizado') {
+        generalizado.style.display = 'block';
+        personalizado.style.display = 'none';
+    } else if (option === 'personalizado') {
+        if (hasSelectedOptions('generalizado') && !confirm('¿Seguro que quieres salir? Se borrarán los datos que ingresó en los días predefinidos.')) {
+            return;
+        }
+        generalizado.style.display = 'none';
+        personalizado.style.display = 'block';
+        initFlatpickr();
+        clearWeekdaySelection('generalizado');
+    }
+}
+function hasSelectedOptions(option) {
+    const checkboxContainer = document.getElementById(`dias-semana-${option}`);
+    const checkboxes = checkboxContainer.querySelectorAll('input[type="checkbox"]');
+    const hasCheckedWeekday = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+    if (option === 'personalizado') {
+        const agregarDias = document.getElementById('agregar-dias');
+        const eliminarDias = document.getElementById('eliminar-dias');
+        const diasPersonalizadosAgregar = document.getElementById('dias-personalizados-agregar');
+        const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
+
+        const hasSelectedCustomDate = (agregarDias.checked && diasPersonalizadosAgregar.value !== '') || (eliminarDias.checked && diasPersonalizadosEliminar.value !== '');
+
+        return hasCheckedWeekday || hasSelectedCustomDate;
+    }
+
+    return hasCheckedWeekday;
+}
+    function clearPersonalizedDates() {
+        const diasPersonalizadosAgregar = document.getElementById('dias-personalizados-agregar');
+        const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
+    
+        diasPersonalizadosAgregar.value = '';
+        diasPersonalizadosEliminar.value = '';
+    }
+    
+    function togglePersonalizado() {
+        const agregarDias = document.getElementById('agregar-dias');
+        const eliminarDias = document.getElementById('eliminar-dias');
+        const diasPersonalizadosAgregar = document.getElementById('dias-personalizados-agregar');
+        const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
+    
+        if (agregarDias.checked) {
+            diasPersonalizadosAgregar.style.display = 'block';
+        } else {
+            diasPersonalizadosAgregar.style.display = 'none';
+        }
+    
+        if (eliminarDias.checked) {
+            diasPersonalizadosEliminar.style.display = 'block';
+        } else {
+            diasPersonalizadosEliminar.style.display = 'none';
+        }
+    }
+    function clearWeekdaySelection(option) {
+        const checkboxContainer = document.getElementById(`dias-semana-${option}`);
+        const checkboxes = checkboxContainer.querySelectorAll('input[type="checkbox"]');
+    
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
+    
+    function initFlatpickr() {
+        const dateFrom = new Date(document.getElementById('date-from').value);
+        const dateTo = new Date(document.getElementById('date-to').value);
+    
+        if (dateFrom && dateTo && dateFrom <= dateTo) {
+            flatpickr('#dias-personalizados-agregar', {
+                mode: 'multiple',
+                dateFormat: 'Y-m-d',
+                minDate: dateFrom,
+                maxDate: dateTo,
+                locale: {
+                    firstDayOfWeek: 1 // Lunes como primer día de la semana
+                }
+            });
+            flatpickr('#dias-personalizados-eliminar', {
+                mode: 'multiple',
+                dateFormat: 'Y-m-d',
+                minDate: dateFrom,
+                maxDate: dateTo,
+                locale: {
+                    firstDayOfWeek: 1 // Lunes como primer día de la semana
+                }
+            });
+        }
+    }
+    
+    
+
+
+}//final del if
+
+
+
+  const toggleLink = document.getElementById("toggle-link");
+  const headerRight = document.querySelector(".app-sidebar");
+
+  toggleLink.addEventListener("click", function(e) {
+    e.preventDefault();
+    headerRight.classList.toggle("none");
+  });

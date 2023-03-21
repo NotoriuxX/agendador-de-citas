@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'conexion.php';
+
 include 'Verificacion/verificar_sesion.php';
 
 $userId = $_SESSION['usuario'];

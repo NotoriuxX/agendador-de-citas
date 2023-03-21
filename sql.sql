@@ -33,7 +33,7 @@ CREATE TABLE cartas_presentacion (
     instagram VARCHAR(255),
     linkedin VARCHAR(255),
     direccion VARCHAR(255),
-    visibilidad ENUM('ocultar', 'visible') DEFAULT 'visible', -- Agrega la columna de visibilidad
+    visibilidad ENUM('ocultar', 'visible') DEFAULT 'ocultar', -- Agrega la columna de visibilidad
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
 
