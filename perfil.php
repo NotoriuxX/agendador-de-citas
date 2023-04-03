@@ -226,6 +226,6 @@ if (mysqli_num_rows($result_usuario) > 0) {
 </script>
 
         <script src="js/script.js"></script>
-        
+        <script src="js/es.js"></script>
 </body>
 </html>

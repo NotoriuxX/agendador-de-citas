@@ -429,116 +429,248 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 }
-if (window.location.pathname.endsWith('agendar_citas.php')) {
-   
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Verifica si los elementos existen antes de agregar los controladores de eventos
+function getDisabledDates() {
+    const startDateElement = document.getElementById('fecha-inicio');
+    const endDateElement = document.getElementById('fecha-fin');
+
+    if (!startDateElement || !endDateElement) {
+        return [];
+    }
+
+    const startDate = new Date(startDateElement.value);
+    const endDate = new Date(endDateElement.value);
+    const checkboxes = document.querySelectorAll('#dias-semana-personalizado input[type="checkbox"]');
+
+    let disabledDates = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+        const currentWeekday = currentDate.getDay();
+        const currentDayLabel = getDayLabel(currentWeekday);
+
+        const isDisabled = Array.from(checkboxes).some(checkbox => {
+            return checkbox.checked && checkbox.value === currentDayLabel;
+        });
+
+        if (!isDisabled) {
+            disabledDates.push(new Date(currentDate));
+        }
+
+        currentDate.setDate(currentDate.getDate() - 1);
+    }
+
+    return disabledDates;
+}
+
+if (window.location.pathname.endsWith('agendar_citas.php')) {
+
+    let generalizadoRadio;
+    
+    
+
+    function setupDateLimits() {
         const dateFrom = document.getElementById('date-from');
         const dateTo = document.getElementById('date-to');
-        const generalizadoRadio = document.querySelector('input[name="option"][value="generalizado"]');
-        const personalizadoRadio = document.querySelector('input[name="option"][value="personalizado"]');
-        const agregarDias = document.getElementById('agregar-dias');
+        const currentDate = new Date().toISOString().slice(0, 10);
+        dateFrom.setAttribute('min', currentDate);
+      
+        if (dateFrom.value) {
+          dateTo.setAttribute('min', dateFrom.value);
+        } else {
+          dateTo.setAttribute('disabled', true);
+        }
+      
+        dateFrom.addEventListener('change', function () {
+          dateTo.removeAttribute('disabled');
+          dateTo.setAttribute('min', dateFrom.value);
+        });
+      }
+      
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        setupDateLimits();
+      });
+      
+      
+
+    function toggleWeekdays() {
+        const personalizado = document.querySelector('.personalizado');
+        const checkboxes = personalizado.querySelectorAll('input[type="checkbox"]');
+        const submitButton = document.querySelector('#date-form button[type="submit"]');
+    
+        checkboxes.forEach(checkbox => {
+        });
+        
+                        attachRadioEventListeners();
+                        }
+                        
+    
+    
+
+    function updateFlatpickr() {
+        const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
+    
+        const disabledDates = getDisabledDates();
+        const unselectedBlockedDates = getUnselectedBlockedDates(disabledDates);
+
+    
+        flatpickr('#dias-personalizados-eliminar', {
+            mode: 'multiple',
+            dateFormat: 'Y-m-d',
+            enable: disabledDates,
+            locale: 'es',
+            onReady: function() {
+                this.set('locale', 'es');
+            }
+        });
+    }
+    
+    function getUnselectedBlockedDates(disabledDates) {
+        const dateFrom = new Date(document.getElementById('date-from').value);
+        const dateTo = new Date(document.getElementById('date-to').value);
+    
+        let unselectedBlockedDates = [];
+    
+        for (let date = new Date(dateFrom); date <= dateTo; date.setDate(date.getDate() + 1)) {
+            const dateString = date.toISOString().slice(0, 10);
+            if (!disabledDates.includes(dateString)) {
+                unselectedBlockedDates.push(dateString);
+            }
+        }
+    
+        return unselectedBlockedDates;
+    }
+    
+    
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="dias[]"]');
+        const submitButton = document.querySelector('button[type="submit"]');
+      
+        function updateSubmitButtonState() {
+          let selectedDays = false;
+          checkboxes.forEach((checkbox) => {
+            if (checkbox.checked) {
+              selectedDays = true;
+            }
+          });
+      
+          if (dateFrom.value && dateTo.value && selectedDays) {
+            submitButton.disabled = false;
+          } else {
+            submitButton.disabled = true;
+          }
+        }
+      
+        function updateOptionSectionVisibility() {
+          if (dateFrom.value && dateTo.value) {
+            document.querySelector('.option').style.display = 'block';
+          } else {
+            document.querySelector('.option').style.display = 'none';
+          }
+        }
+      
+        dateFrom.addEventListener('input', () => {
+          updateOptionSectionVisibility();
+          updateSubmitButtonState();
+        });
+      
+        dateTo.addEventListener('input', () => {
+          updateOptionSectionVisibility();
+          updateSubmitButtonState();
+        });
+      
+        checkboxes.forEach((checkbox) => {
+          checkbox.addEventListener('change', () => {
+            updateSubmitButtonState();
+          });
+        });
+      
         const eliminarDias = document.getElementById('eliminar-dias');
+        const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
+      
+        eliminarDias.addEventListener('change', () => {
+          if (eliminarDias.checked) {
+            diasPersonalizadosEliminar.style.display = 'block';
+          } else {
+            diasPersonalizadosEliminar.style.display = 'none';
+          }
+        });
+      
+        setupDateLimits();
+        updateOptionSectionVisibility();
+        updateSubmitButtonState();
+      });
+      
     
-        if (dateFrom && dateTo) {
-            dateFrom.addEventListener('input', updateCustomDates);
-            dateTo.addEventListener('input', updateCustomDates);
-        }
-    
-        if (generalizadoRadio && personalizadoRadio) {
-            generalizadoRadio.addEventListener('change', () => showOptions('generalizado'));
-            personalizadoRadio.addEventListener('change', () => showOptions('personalizado'));
-    
-            // Agrega el controlador de eventos onclick en lugar de usar el atributo HTML onclick
-            document.querySelectorAll('input[type="radio"][name="option"]').forEach(function(radio) {
-                radio.addEventListener('click', function() {
-                    showOptions(this.value);
-                });
-            });
-        }
-    
-        if (agregarDias && eliminarDias) {
-            agregarDias.addEventListener('change', togglePersonalizado);
-            eliminarDias.addEventListener('change', togglePersonalizado);
-        }
-    });
+        
     
     
     function updateCustomDates() {
-        const dateFrom = document.getElementById('date-from').value;
-        const dateTo = document.getElementById('date-to').value;
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+
     
-        if (dateFrom && dateTo) {
+        if (dateFrom.value && dateTo.value) {
             document.querySelector('.option').style.display = 'block';
+            dateFrom.addEventListener('input', updateCustomDates);
+         dateTo.addEventListener('input', function () {
+            updateCustomDates();
+            updateEndDatePlusOne();
+        });
         } else {
             document.querySelector('.option').style.display = 'none';
         }
+
+    }
+    function updateEndDatePlusOne() {
+        const dateToInput = document.getElementById('date-to');
+        const diasPersonalizadosInput = document.getElementById('dias-personalizados-eliminar');
+        
+        if (dateToInput && diasPersonalizadosInput) {
+            const dateToValue = new Date(dateToInput.value);
+            dateToValue.setDate(dateToValue.getDate() + 1);
+    
+            const formattedDate = formatDate(dateToValue);
+            diasPersonalizadosInput.value = formattedDate;
+        }
     }
     
-    function showOptions(option) {
-        const generalizado = document.querySelector('.generalizado');
-        const personalizado = document.querySelector('.personalizado');
-    
-        if (option === 'generalizado' && personalizado.style.display === 'block') {
-            if (hasSelectedOptions('personalizado') && !confirm('¿Seguro que quieres salir? Se borrarán los datos que ingresó en los días personalizados.')) {
-                return;
-            }
-            clearPersonalizedDates();
-            clearWeekdaySelection('personalizado');
-        }
-    
-        if (option === 'generalizado') {
-        generalizado.style.display = 'block';
-        personalizado.style.display = 'none';
-    } else if (option === 'personalizado') {
-        if (hasSelectedOptions('generalizado') && !confirm('¿Seguro que quieres salir? Se borrarán los datos que ingresó en los días predefinidos.')) {
-            return;
-        }
-        generalizado.style.display = 'none';
-        personalizado.style.display = 'block';
-        initFlatpickr();
-        clearWeekdaySelection('generalizado');
+    function formatDate(date) {
+        const day = ('0' + date.getDate()).slice(-2);
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const year = date.getFullYear();
+        
+        return `${day}-${month}-${year}`;
     }
-}
+    
+   
 function hasSelectedOptions(option) {
     const checkboxContainer = document.getElementById(`dias-semana-${option}`);
     const checkboxes = checkboxContainer.querySelectorAll('input[type="checkbox"]');
     const hasCheckedWeekday = Array.from(checkboxes).some(checkbox => checkbox.checked);
 
     if (option === 'personalizado') {
-        const agregarDias = document.getElementById('agregar-dias');
         const eliminarDias = document.getElementById('eliminar-dias');
-        const diasPersonalizadosAgregar = document.getElementById('dias-personalizados-agregar');
         const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
 
-        const hasSelectedCustomDate = (agregarDias.checked && diasPersonalizadosAgregar.value !== '') || (eliminarDias.checked && diasPersonalizadosEliminar.value !== '');
+        const hasSelectedCustomDate = (eliminarDias.checked && diasPersonalizadosEliminar.value !== '');
 
         return hasCheckedWeekday || hasSelectedCustomDate;
     }
 
     return hasCheckedWeekday;
 }
-    function clearPersonalizedDates() {
-        const diasPersonalizadosAgregar = document.getElementById('dias-personalizados-agregar');
-        const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
     
-        diasPersonalizadosAgregar.value = '';
-        diasPersonalizadosEliminar.value = '';
-    }
     
     function togglePersonalizado() {
-        const agregarDias = document.getElementById('agregar-dias');
         const eliminarDias = document.getElementById('eliminar-dias');
-        const diasPersonalizadosAgregar = document.getElementById('dias-personalizados-agregar');
         const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
     
-        if (agregarDias.checked) {
-            diasPersonalizadosAgregar.style.display = 'block';
-        } else {
-            diasPersonalizadosAgregar.style.display = 'none';
-        }
-    
+        
         if (eliminarDias.checked) {
             diasPersonalizadosEliminar.style.display = 'block';
         } else {
@@ -554,20 +686,13 @@ function hasSelectedOptions(option) {
         });
     }
     
+    
     function initFlatpickr() {
         const dateFrom = new Date(document.getElementById('date-from').value);
         const dateTo = new Date(document.getElementById('date-to').value);
     
         if (dateFrom && dateTo && dateFrom <= dateTo) {
-            flatpickr('#dias-personalizados-agregar', {
-                mode: 'multiple',
-                dateFormat: 'Y-m-d',
-                minDate: dateFrom,
-                maxDate: dateTo,
-                locale: {
-                    firstDayOfWeek: 1 // Lunes como primer día de la semana
-                }
-            });
+           
             flatpickr('#dias-personalizados-eliminar', {
                 mode: 'multiple',
                 dateFormat: 'Y-m-d',
@@ -577,12 +702,172 @@ function hasSelectedOptions(option) {
                     firstDayOfWeek: 1 // Lunes como primer día de la semana
                 }
             });
+            toggleWeekdays();
+        }
+    }
+   
+    
+    
+    
+    function attachRadioEventListeners() {
+        const radios = document.querySelectorAll('input[type="radio"][name="option"]');
+    
+        radios.forEach((radio) => {
+        });
+    }
+    
+    function dayNumber(day) {
+        const days = {
+            'domingo': 6,
+            'lunes': 0,
+            'martes': 1,
+            'miercoles': 2,
+            'jueves': 3,
+            'viernes': 4,
+            'sabado': 5
+        };
+    
+        return days[day];
+    }
+    
+    function getEnabledDays(dateFrom, dateTo, selectedDays) {
+        let enabledDays = [];
+    
+        for (let date = new Date(dateFrom); date <= dateTo; date.setDate(date.getDate() + 1)) {
+            const dayNumber = date.getDay();
+            
+            if (selectedDays.includes(dayNumber)) {
+                enabledDays.push(date.toISOString().slice(0, 10));
+            }
+        }
+    
+        return enabledDays;
+    }
+    
+    function updateDatePicker() {
+        const dateFrom = new Date(document.getElementById('date-from').value);
+        const dateTo = new Date(document.getElementById('date-to').value);
+        const checkboxes = document.querySelectorAll('#dias-semana-personalizado input[type="checkbox"]');
+        const diasPersonalizadosEliminar = document.getElementById('dias-personalizados-eliminar');
+        const eliminarDias = document.getElementById('eliminar-dias');
+    
+        let selectedDays = [];
+    
+        checkboxes.forEach((checkbox) => {
+            if (checkbox.checked) {
+                selectedDays.push(dayNumber(checkbox.value));
+            }
+        });
+    
+        const enabledDays = getEnabledDays(dateFrom, dateTo, selectedDays);
+    
+        flatpickr(diasPersonalizadosEliminar, {
+            mode: 'multiple',
+            dateFormat: 'Y-m-d',
+            minDate: dateFrom,
+            maxDate: dateTo,
+            enable: enabledDays,
+            locale: {
+                firstDayOfWeek: 1 // Lunes como primer día de la semana
+            },
+            onReady: function () {
+                this.set('locale', 'es');
+            }
+        });
+    
+        if (eliminarDias.checked) {
+            diasPersonalizadosEliminar.style.display = 'block';
+        } else {
+            diasPersonalizadosEliminar.style.display = 'none';
         }
     }
     
+    function updateCheckboxListeners() {
+    const checkboxes = document.querySelectorAll('#dias-semana-personalizado input[type="checkbox"]');
+
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+            updateDatePicker();
+        });
+    });
+}
+
+
+
+
+
+function handleCheckboxChange(checkboxes, dateFrom, dateTo) {
+    let atLeastOneChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+    dateFrom.disabled = atLeastOneChecked;
+    dateTo.disabled = atLeastOneChecked;
+}
+
+function handleToggleAllChange(checkboxes, toggleAllCheckbox) {
+    const isChecked = toggleAllCheckbox.checked;
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+        checkbox.dispatchEvent(new Event('change'));
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="dias[]"]');
+    const dateFrom = document.getElementById('date-from');
+    const dateTo = document.getElementById('date-to');
+    const toggleAllCheckbox = document.getElementById('toggle-all');
+    const eliminarDias = document.getElementById('eliminar-dias');
+    const input = document.getElementById("dias-personalizados-eliminar");
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => handleCheckboxChange(checkboxes, dateFrom, dateTo));
+    });
+
+    toggleAllCheckbox.addEventListener('change', () => handleToggleAllChange(checkboxes, toggleAllCheckbox));
+
+    if (dateFrom && dateTo) {
+        dateFrom.addEventListener('input', updateCustomDates);
+        dateTo.addEventListener('input', updateCustomDates);
+    }
+
+    if (eliminarDias) {
+        eliminarDias.addEventListener('change', togglePersonalizado);
+    }
+
+    updateCheckboxListeners();
+
+    eliminarDias.addEventListener("change", function () {
+        if (eliminarDias.checked) {
+            input.style.display = "inline";
+        } else {
+            input.style.display = "none";
+        }
+    });
+
+    const dateForm = document.getElementById('date-form');
+    enableAllFieldsBeforeSubmit(dateForm);
+
+
+});
+
+function enableAllFieldsBeforeSubmit(form) {
+    form.addEventListener('submit', () => {
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="dias[]"]');
+
+        dateFrom.disabled = false;
+        dateTo.disabled = false;
+        checkboxes.forEach(checkbox => {
+            checkbox.disabled = false;
+        });
+    });
+}
+
+
+
+
     
-
-
 }//final del if
 
 
@@ -594,3 +879,209 @@ function hasSelectedOptions(option) {
     e.preventDefault();
     headerRight.classList.toggle("none");
   });
+//-------------------- ventana seleccionar horas---------------------
+
+if (window.location.pathname.endsWith('select_hours.php')) {
+
+
+    
+
+// Ocultar todos los elementos .card-body excepto el primero al cargar la página
+const cardBodies = document.querySelectorAll('.card-body');
+let lastOpened = [];
+for (let i = 0; i < cardBodies.length; i++) {
+  if (i === 0) {
+    lastOpened.push(cardBodies[i]);
+  } else {
+    cardBodies[i].style.display = 'none';
+  }
+}
+
+// Controlar el colapso y la expansión del contenido
+document.querySelectorAll('.card-header').forEach(function (header) {
+    header.addEventListener('click', function () {
+      const day = this.getAttribute('data-day');
+      const cardBody = document.getElementById('card-body-' + day);
+  
+      if (cardBody.style.display === 'none') {
+        cardBody.style.display = 'flex';
+        if (lastOpened.length === 2) {
+          lastOpened[0].style.display = 'none';
+          lastOpened.shift();
+        }
+        lastOpened.push(cardBody);
+      } else {
+        cardBody.style.display = 'none';
+        const index = lastOpened.indexOf(cardBody);
+        if (index > -1) {
+          lastOpened.splice(index, 1);
+        }
+      }
+    });
+  });
+  
+
+
+
+
+document.querySelectorAll('.generate-times').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const cardBody = this.parentElement;
+        const startTime = cardBody.querySelector('.start-time').value;
+        const endTime = cardBody.querySelector('.end-time').value;
+        const interval = parseInt(cardBody.querySelector('.interval').value);
+        const timesContainer = cardBody.querySelector('.times-container');
+
+        const start = new Date("1970-01-01T" + startTime + "Z");
+        const end = new Date("1970-01-01T" + endTime + "Z");
+        const times = [];
+
+        while (start < end) {
+            times.push(start.toISOString().slice(11, 16));
+            start.setMinutes(start.getMinutes() + interval);
+        }
+
+        timesContainer.innerHTML = times.join(', ');
+    });
+});
+
+
+
+
+
+
+  function validateFields(cardBody) {
+    let isValid = true;
+    cardBody.find('input').each(function() {
+      if ($(this).val() === '') {
+        isValid = false;
+        $(this).addClass('is-invalid');
+      } else {
+        $(this).removeClass('is-invalid');
+      }
+    });
+    return isValid;
+  }
+  
+
+
+
+  $(document).ready(function() {
+    $('body').on('click', '.generate-times', function() {
+      const cardBody = $(this).parent().parent();
+      const day = cardBody.find('.card-header').data('day');
+  
+      if (!validateFields(cardBody)) {
+        return;
+      }
+  
+      const timesContainer = cardBody.find('.times-container').last();
+      const newTimeSlot = `
+        <div class="times-container">
+          <div class="form-group-left">
+            <div class="form-group">
+              <label>Hora de inicio:</label>
+              <input type="time" class="form-control start-time" name="start_time[${day}][]">
+            </div>
+            <div class="form-group">
+              <label>Hora de finalización:</label>
+              <input type="time" class="form-control end-time" name="end_time[${day}][]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Intervalo (minutos):</label>
+            <input type="number" class="form-control interval" min="1" value="30" name="interval[${day}][]">
+          </div>
+        </div>`;
+  
+      cardBody.append(newTimeSlot);
+  
+      const newButtonContainer = `
+        <div class="buttoncontainer">
+          <button type="button" class="btn generate-times">+</button>
+          <button type="button" class="btn delete-times">-</button>
+        </div>`;
+  
+      cardBody.append(newButtonContainer);
+      $(this).hide();
+      cardBody.find('.delete-times').last().show();
+    });
+  
+    $('body').on('click', '.delete-times', function() {
+      const cardBody = $(this).parent().parent();
+      $(this).parent().prev('.times-container').remove();
+      $(this).parent().remove();
+      cardBody.find('.generate-times').last().show();
+    });
+  });
+  
+
+
+
+
+  function validateInputs() {
+    let allValid = true;
+    document.querySelectorAll('.start-time, .end-time, .interval').forEach(function (input) {
+      if (input.value === '') {
+        input.classList.add('is-invalid');
+        allValid = false;
+      } else {
+        input.classList.remove('is-invalid');
+      }
+    });
+    return allValid;
+  }
+  
+  document.querySelector('.btn-back').addEventListener('click', function () {
+    window.location.href = 'agendar_citas.php';
+  });
+  
+
+  document.querySelector('#select-hours-form').addEventListener('submit', function (event) {
+    if (!validateInputs()) {
+      event.preventDefault();
+  
+      // Mostrar todos los elementos colapsados
+      document.querySelectorAll('.card-body').forEach(function (cardBody) {
+        cardBody.style.display = 'flex';
+      });
+    } else {
+      // Enviar los datos a 'previsualizar_citas.php' aquí
+      // ...
+      window.location.href = 'previsualizar_citas.php';
+    }
+  });
+  
+  document.addEventListener("DOMContentLoaded", function () {
+    // Controlador de eventos para el botón "Atrás"
+    const backButton = document.querySelector(".btn.btn-back");
+    if (backButton) {
+      backButton.addEventListener("click", function (event) {
+        event.preventDefault();
+  
+        // Almacenar los datos del formulario actual en localStorage
+        const form = document.getElementById("select-hours-form");
+        const formData = new FormData(form);
+        for (const [key, value] of formData.entries()) {
+          localStorage.setItem(key, value);
+        }
+  
+        // Volver a la página anterior
+        window.history.back();
+      });
+    }
+  });
+
+
+
+
+
+
+
+
+
+    
+      
+          
+
+}
