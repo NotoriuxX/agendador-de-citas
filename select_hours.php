@@ -57,7 +57,7 @@ echo "Días personalizados a eliminar: " . $custom_days_to_remove . "<br>";
           <?php foreach ($selected_days as $day): ?>
             <div class="item">
               <div class="col">
-                <div class="card">
+                <div class="card" data-day="<?php echo $day; ?>">
                   <div class="card-header" id="<?php echo 'heading-' . $day; ?>" data-day="<?php echo $day; ?>">
                   <h4 class="btn btn-link" type="button" aria-controls="<?php echo 'collapse-' . $day; ?>">
                                     <?php echo $day; ?>
@@ -70,16 +70,16 @@ echo "Días personalizados a eliminar: " . $custom_days_to_remove . "<br>";
                             <div class="form-group-left" >
                                 <div class="form-group">
                                   <label>Hora de inicio:</label>
-                                  <input type="time" class="form-control start-time" name="start_time[<?php echo $day; ?>]">
+                                  <input type="time" class="form-control start-time" name="start_time[<?php echo $day; ?>][0]">
                                 </div>
                                 <div class="form-group">
                                   <label>Hora de finalización:</label>
-                                  <input type="time" class="form-control end-time" name="end_time[<?php echo $day; ?>]">
+                                  <input type="time" class="form-control end-time" name="end_time[<?php echo $day; ?>][0]">
                                 </div>
                               </div>
                               <div class="form-group">
                                 <label>Intervalo (minutos):</label>
-                                <input type="number" class="form-control interval" min="1" value="30" name="interval[<?php echo $day; ?>]">
+                                <input type="number" class="form-control interval" min="1" value="30" name="interval[<?php echo $day; ?>][0]">
                               </div>
                           </div>
                           <div class="buttoncontainer">

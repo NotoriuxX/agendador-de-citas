@@ -924,88 +924,75 @@ document.querySelectorAll('.card-header').forEach(function (header) {
 
 
 
-document.querySelectorAll('.generate-times').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-        const cardBody = this.parentElement;
-        const startTime = cardBody.querySelector('.start-time').value;
-        const endTime = cardBody.querySelector('.end-time').value;
-        const interval = parseInt(cardBody.querySelector('.interval').value);
-        const timesContainer = cardBody.querySelector('.times-container');
-
-        const start = new Date("1970-01-01T" + startTime + "Z");
-        const end = new Date("1970-01-01T" + endTime + "Z");
-        const times = [];
-
-        while (start < end) {
-            times.push(start.toISOString().slice(11, 16));
-            start.setMinutes(start.getMinutes() + interval);
-        }
-
-        timesContainer.innerHTML = times.join(', ');
-    });
-});
 
 
 
 
-
-
-  function validateFields(cardBody) {
-    let isValid = true;
-    cardBody.find('input').each(function() {
-      if ($(this).val() === '') {
-        isValid = false;
-        $(this).addClass('is-invalid');
-      } else {
-        $(this).removeClass('is-invalid');
-      }
-    });
-    return isValid;
+  function getDayFromCard(cardBody) {
+    const card = cardBody.closest('.card'); // Find the closest .card element
+    return $(card).attr('data-day'); // Get the 'data-day' attribute from the .card element
   }
   
 
+function validateFields(cardBody) {
+  let isValid = true;
+  cardBody.find('input:not([type="hidden"])').each(function() { // Add :not([type="hidden"])
+    if ($(this).val() === '') {
+      isValid = false;
+      $(this).addClass('is-invalid');
+    } else {
+      $(this).removeClass('is-invalid');
+    }
+  });
+  return isValid;
+}
+
+  
 
 
-  $(document).ready(function() {
-    $('body').on('click', '.generate-times', function() {
-      const cardBody = $(this).parent().parent();
-      const day = cardBody.find('.card-header').data('day');
-  
-      if (!validateFields(cardBody)) {
-        return;
-      }
-  
-      const timesContainer = cardBody.find('.times-container').last();
-      const newTimeSlot = `
-        <div class="times-container">
-          <div class="form-group-left">
-            <div class="form-group">
-              <label>Hora de inicio:</label>
-              <input type="time" class="form-control start-time" name="start_time[${day}][]">
-            </div>
-            <div class="form-group">
-              <label>Hora de finalización:</label>
-              <input type="time" class="form-control end-time" name="end_time[${day}][]">
-            </div>
+
+$(document).ready(function() {
+  $('body').on('click', '.generate-times', function() {
+    const cardBody = $(this).parent().parent();
+    const day = getDayFromCard(cardBody);
+
+    if (!validateFields(cardBody)) {
+      return;
+    }
+
+    const timesContainer = cardBody.find('.times-container').last();
+    const newIndex = cardBody.find('.times-container').length;
+
+    const newTimeSlot = `
+      <div class="times-container">
+        <div class="form-group-left">
+          <div class="form-group">
+            <label>Hora de inicio:</label>
+            <input type="time" class="form-control start-time" name="start_time[${day}][${newIndex}]">
           </div>
           <div class="form-group">
-            <label>Intervalo (minutos):</label>
-            <input type="number" class="form-control interval" min="1" value="30" name="interval[${day}][]">
+            <label>Hora de finalización:</label>
+            <input type="time" class="form-control end-time" name="end_time[${day}][${newIndex}]">
           </div>
-        </div>`;
-  
-      cardBody.append(newTimeSlot);
-  
-      const newButtonContainer = `
-        <div class="buttoncontainer">
-          <button type="button" class="btn generate-times">+</button>
-          <button type="button" class="btn delete-times">-</button>
-        </div>`;
-  
-      cardBody.append(newButtonContainer);
-      $(this).hide();
-      cardBody.find('.delete-times').last().show();
-    });
+        </div>
+        <div class="form-group">
+          <label>Intervalo (minutos):</label>
+          <input type="number" class="form-control interval" min="1" value="30" name="interval[${day}][${newIndex}]">
+        </div>
+      </div>`;
+
+    cardBody.append(newTimeSlot);
+
+    const newButtonContainer = `
+      <div class="buttoncontainer">
+        <button type="button" class="btn generate-times">+</button>
+        <button type="button" class="btn delete-times">-</button>
+      </div>`;
+
+    cardBody.append(newButtonContainer);
+    $(this).hide();
+    cardBody.find('.delete-times').last().show();
+  });
   
     $('body').on('click', '.delete-times', function() {
       const cardBody = $(this).parent().parent();
@@ -1038,19 +1025,16 @@ document.querySelectorAll('.generate-times').forEach(function (btn) {
   
 
   document.querySelector('#select-hours-form').addEventListener('submit', function (event) {
-    if (!validateInputs()) {
-      event.preventDefault();
-  
-      // Mostrar todos los elementos colapsados
-      document.querySelectorAll('.card-body').forEach(function (cardBody) {
-        cardBody.style.display = 'flex';
-      });
-    } else {
-      // Enviar los datos a 'previsualizar_citas.php' aquí
-      // ...
-      window.location.href = 'previsualizar_citas.php';
-    }
-  });
+  if (!validateInputs()) {
+    event.preventDefault();
+
+    // Mostrar todos los elementos colapsados
+    document.querySelectorAll('.card-body').forEach(function (cardBody) {
+      cardBody.style.display = 'flex';
+    });
+  }
+});
+
   
   document.addEventListener("DOMContentLoaded", function () {
     // Controlador de eventos para el botón "Atrás"
@@ -1071,6 +1055,48 @@ document.querySelectorAll('.generate-times').forEach(function (btn) {
       });
     }
   });
+       
+
+}//fin if
+
+
+
+
+if (window.location.pathname.endsWith('previsualizar_citas.php')) {
+
+
+    const slotCheckboxes = document.querySelectorAll('.slot-checkbox');
+    const selectedSlotsContainer = document.getElementById('selected-slots');
+    const toggleDeleteMode = document.getElementById('toggle-delete-mode');
+
+    function updateSelectedSlots() {
+        const selectedSlots = Array.from(slotCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+        
+        selectedSlotsContainer.innerHTML = selectedSlots.join(', ');
+    }
+
+    slotCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('click', updateSelectedSlots);
+    });
+
+    function toggleSlotSelection(event) {
+        if (toggleDeleteMode.checked) {
+            event.target.classList.toggle('selected');
+            const slot = event.target.innerText;
+            const day = event.target.getAttribute('data-day');
+
+            const slotCheckbox = document.querySelector(`.slot-checkbox[data-day="${day}"][value="${slot}"]`);
+            slotCheckbox.checked = !slotCheckbox.checked;
+            updateSelectedSlots();
+        }
+    }
+
+    const slotLabels = document.querySelectorAll('.slot-label');
+    slotLabels.forEach(label => {
+        label.addEventListener('click', toggleSlotSelection);
+    });
 
 
 
@@ -1078,10 +1104,4 @@ document.querySelectorAll('.generate-times').forEach(function (btn) {
 
 
 
-
-
-    
-      
-          
-
-}
+}//fin if

@@ -1498,3 +1498,113 @@ button[type="submit"]:disabled , .btn-back{
   display: flex;
   justify-content: space-between;
 }
+
+/*-------------------------------------------------------------------------------------------
+------------------------------------previsualizar horas----------------------------------------*/
+
+.container-hors {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.day {
+  flex: 0 0 100%;
+  margin-bottom: 10px;
+}
+
+.hors {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.slot-label {
+  display: inline-block;
+  background-color: #fff;
+  padding: 5px 10px;
+  margin: 2px;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.slot-label:hover {
+  background-color: #e9ecef;
+}
+
+.selected {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.toggle-delete-mode {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.custom-container-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.hours-removed-container {
+  position: relative;
+  width: 500px;
+  height: 30px;
+  padding: 5px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+}
+
+#selected-slots {
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  width: calc(100% - 10px);
+  height: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+.toggle-delete-container {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+}
+
+.toggle-delete-container input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-delete-container label {
+  cursor: pointer;
+  padding-left: 30px;
+}
+
+.toggle-delete-container label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+  border: 2px solid #dee2e6;
+  border-radius: 4px;
+}
+
+.toggle-delete-container input[type="checkbox"]:checked + label::before {
+  background-color: #007bff;
+  border-color: #007bff;
+}
