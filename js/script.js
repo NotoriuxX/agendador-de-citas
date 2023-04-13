@@ -1,4 +1,4 @@
-//---------------------------------Funciones-------------------------
+//---------------------------------Funciones---------------- {
 function uploadImage(file) {
     const formData = new FormData();
     formData.append("image", file);
@@ -1063,45 +1063,105 @@ $(document).ready(function() {
 
 
 if (window.location.pathname.endsWith('previsualizar_citas.php')) {
+  function formatSlotsForDisplay(groupedSlots) {
+    let result = '';
 
-
-    const slotCheckboxes = document.querySelectorAll('.slot-checkbox');
-    const selectedSlotsContainer = document.getElementById('selected-slots');
-    const toggleDeleteMode = document.getElementById('toggle-delete-mode');
-
-    function updateSelectedSlots() {
-        const selectedSlots = Array.from(slotCheckboxes)
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => checkbox.value);
-        
-        selectedSlotsContainer.innerHTML = selectedSlots.join(', ');
-    }
-
-    slotCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('click', updateSelectedSlots);
-    });
-
-    function toggleSlotSelection(event) {
-        if (toggleDeleteMode.checked) {
-            event.target.classList.toggle('selected');
-            const slot = event.target.innerText;
-            const day = event.target.getAttribute('data-day');
-
-            const slotCheckbox = document.querySelector(`.slot-checkbox[data-day="${day}"][value="${slot}"]`);
-            slotCheckbox.checked = !slotCheckbox.checked;
-            updateSelectedSlots();
+    for (const day in groupedSlots) {
+        if (groupedSlots.hasOwnProperty(day)) {
+            result += day + ': ' + groupedSlots[day].join(', ') + '\n';
         }
     }
 
-    const slotLabels = document.querySelectorAll('.slot-label');
-    slotLabels.forEach(label => {
-        label.addEventListener('click', toggleSlotSelection);
-    });
+    return result;
+}
+
+
+function updateSelectedSlots() {
+  const selectedSlotsElement = document.getElementById('selected-slots');
+  const checkboxes = document.querySelectorAll('.slot-checkbox:checked');
+  const selectedSlots = Array.from(checkboxes).map(checkbox => ({
+      day: checkbox.dataset.day,
+      slot: checkbox.value
+  }));
+
+  const groupedSlots = selectedSlots.reduce((grouped, currentSlot) => {
+      if (!grouped[currentSlot.day]) {
+          grouped[currentSlot.day] = [];
+      }
+      grouped[currentSlot.day].push(currentSlot.slot);
+      return grouped;
+  }, {});
+
+  // Utiliza la función formatSlotsForDisplay() para formatear el texto
+  selectedSlotsElement.textContent = formatSlotsForDisplay(groupedSlots);
+  return groupedSlots;
+}
 
 
 
+document.addEventListener('DOMContentLoaded', () => {
+  const slotLabels = document.querySelectorAll('.slot-label');
+  slotLabels.forEach(label => {
+      label.addEventListener('click', (event) => {
+          const day = event.target.dataset.day;
+          const slot = event.target.textContent;
+          const checkbox = document.querySelector(`.slot-checkbox[data-day="${day}"][value="${slot}"]`);
+
+          if (!checkbox) {
+              return;
+          }
+
+          if (document.getElementById('toggle-delete-mode').checked) {
+              checkbox.checked = !checkbox.checked;
+              event.target.classList.toggle('selected'); // Agrega o quita la clase 'selected'
+              updateSelectedSlots();
+          }
+      });
+  });
+
+  document.getElementById('toggle-delete-mode').addEventListener('change', updateSelectedSlots);
+});
+
+document.getElementById('date-form').addEventListener('submit', (event) => {
+  const createdSlots = getCreatedSlots();
+  document.getElementById('created-slots-json').value = JSON.stringify(createdSlots);
+
+  const checkboxes = document.querySelectorAll('.slot-checkbox:checked');
+  const selectedSlots = Array.from(checkboxes).map(checkbox => ({
+      day: checkbox.dataset.day,
+      slot: checkbox.value
+  }));
+
+  document.getElementById('selected-slots-json').value = JSON.stringify(selectedSlots);
+});
 
 
 
+function getCreatedSlots() {
+  const checkboxes = document.querySelectorAll('.slot-checkbox');
+  const allSlots = Array.from(checkboxes).map(checkbox => ({
+      day: checkbox.dataset.day,
+      slot: checkbox.value
+  }));
 
+  const groupedSlots = allSlots.reduce((grouped, currentSlot) => {
+      if (!grouped[currentSlot.day]) {
+          grouped[currentSlot.day] = [];
+      }
+      grouped[currentSlot.day].push(currentSlot.slot);
+      return grouped;
+  }, {});
+
+  return groupedSlots;
+}
+
+
+
+}//fin if
+
+if (window.location.pathname.endsWith('calendario_personalizado.php')) {
+
+ 
+  
+  
 }//fin if
