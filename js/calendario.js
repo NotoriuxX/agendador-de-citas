@@ -19,8 +19,22 @@ botonSiguiente.addEventListener("click", () => {
 });
 
 let diaSeleccionado = null;
+let horaSeleccionada = null;
+
+function ajustarNombreDia(dia) {
+    const ajustes = {
+        'miércoles': 'miercoles',
+        'sábado': 'sabado',
+        'domingo': 'domingo'
+    };
+
+    return ajustes[dia] || dia;
+}
 
 function seleccionarDia(celda) {
+    const anioActual = fechaActual.getFullYear();
+    const mesActual = fechaActual.getMonth();
+
     if (diaSeleccionado) {
         diaSeleccionado.classList.remove("dia-seleccionado");
     }
@@ -34,8 +48,40 @@ function seleccionarDia(celda) {
         calendarioContainer.parentNode.insertBefore(horasActual, calendarioContainer.nextSibling);
     }
 
-    horasActual.innerHTML = `Horas para el día ${celda.textContent} de ${primerDia.toLocaleString("es-ES", { month: "long" })}`;
+    const fechaSeleccionada = new Date(anioActual, mesActual, parseInt(celda.textContent));
+    const diaSemana = ajustarNombreDia(fechaSeleccionada.toLocaleString("es-ES", { weekday: "long" }).toLowerCase());
+    const horasCreadas = createdSlots[diaSemana] || [];
+    console.log("Horas creadas para el día:", horasCreadas);
+
+    let tituloHoras = document.createElement("div");
+    tituloHoras.classList.add("titulo-horas-calendario");
+    tituloHoras.textContent = `Horas para el día ${celda.textContent} de ${fechaSeleccionada.toLocaleString("es-ES", { month: "long" })}:`;
+    horasActual.innerHTML = "";
+    horasActual.appendChild(tituloHoras);
+
+    let contenedorHoras = document.createElement("div");
+    contenedorHoras.classList.add("horas-calendario");
+    horasCreadas.forEach((hora) => {
+        const divHora = document.createElement("div");
+        divHora.textContent = hora;
+        
+        // Añadir un evento de clic a cada div de hora
+        divHora.addEventListener("click", () => {
+            if (horaSeleccionada) {
+                horaSeleccionada.classList.remove("hora-seleccionada");
+            }
+            horaSeleccionada = divHora;
+            horaSeleccionada.classList.add("hora-seleccionada");
+        });
+
+        contenedorHoras.appendChild(divHora);
+    });
+    horasActual.appendChild(contenedorHoras);
 }
+
+
+
+
 
 function mostrarDiasSemana() {
     const abreviaturasDias = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
@@ -68,7 +114,12 @@ function mostrarCalendario() {
     const dateFromObj = new Date(dateFrom);
     const dateToObj = new Date(dateTo);
     dateToObj.setDate(dateToObj.getDate() + 1); // Sumamos un día al objeto dateToObj
-    const customDaysToRemoveArray = customDaysToRemove ? customDaysToRemove.split(",") : [];
+
+const customDaysToRemoveArray = customDaysToRemove ? customDaysToRemove.split(", ") : []; //verifica si esta vacio
+//const customDaysToRemoveArray = customDaysToRemove.split(', '); asume que siempre tiene valor
+//console.log("customDaysToRemoveArray:", customDaysToRemoveArray);
+
+let horasBloqueadas = {};
 
     // Rellenar con espacios vacíos antes del primer día del mes
     for (let i = 1; i < primerDia.getDay(); i++) {
@@ -80,26 +131,28 @@ function mostrarCalendario() {
         const celda = document.createElement("div");
         celda.textContent = i;
         const celdaFecha = new Date(primerDia.getFullYear(), primerDia.getMonth(), i);
-        console.log("Celda fecha:", celdaFecha);
 
         if (celdaFecha >= dateFromObj && celdaFecha < dateToObj && !customDaysToRemoveArray.includes(celdaFecha.toISOString().substring(0, 10))) {
-
-            console.log("Celda habilitada:", celdaFecha);
-            celda.addEventListener("click", () => seleccionarDia(celda));
+            const diaSemana = ajustarNombreDia(celdaFecha.toLocaleString("es-ES", { weekday: "long" }).toLowerCase());
+            if (createdSlots[diaSemana] && createdSlots[diaSemana].length > 0) {
+                console.log("Celda habilitada:", celdaFecha);
+                celda.addEventListener("click", () => seleccionarDia(celda));
+            } else {
+                console.log("Celda bloqueada (sin horas disponibles):", celdaFecha);
+                celda.classList.add("dia-bloqueado");
+            }
         } else {
-            console.log("Celda bloqueada:", celdaFecha);
+            console.log("Celda bloqueada (fuera del rango):", celdaFecha);
             celda.classList.add("dia-bloqueado");
         }
 
         calendario.appendChild(celda);
     }
 
-
-    
-
     // Establecer el título del mes y el año
     mesTitulo.textContent = `${primerDia.toLocaleString("es-ES", { month: "long" })} ${primerDia.getFullYear()}`;
 }
+
 
 
     
