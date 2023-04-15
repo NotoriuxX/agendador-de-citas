@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'conexion.php';
-include 'Verificacion/verificar_sesion.php';
+include 'Config/database.php';
+include 'Processes/session_verification.php';
 
 
 // Accede a los valores de las variables de sesión aquí
@@ -13,7 +13,7 @@ if (isset($_POST['date-from'])) {
   $eliminar_dias = isset($_POST['eliminar-dias']);
   $custom_days_to_remove = isset($_POST['dias-personalizados-eliminar']) ? $_POST['dias-personalizados-eliminar'] : '';
 } else {
-  header("Location: agendar_citas.php");
+  header("Location: schedule_appointments.php");
   exit;
 }
 
@@ -30,14 +30,14 @@ echo "Días personalizados a eliminar: " . $custom_days_to_remove . "<br>";
 
 <!DOCTYPE html>
 <html lang="en" >
-<?php include 'encabezado.php'; ?>  
+<?php include 'Partials/header.php'; ?>  
 <head>
-  <link rel="stylesheet" href="css/custom-bootstrap.css">
+  <link rel="stylesheet" href="css/calendar_appointment.css">
   
 </head>
 <body>
 <div class="projects-section">
-  <form  id="select-hours-form" method="POST" action="previsualizar_citas.php">
+  <form  id="select-hours-form" method="POST" action="preview_appointment.php">
     <!-- Agregue campos ocultos para almacenar los valores que recibió del formulario anterior -->
 
     <input type="hidden" name="date-from" value="<?php echo $date_from; ?>">

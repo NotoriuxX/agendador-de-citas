@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include '../conexion.php';
+include '../Config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre_1 = $_POST['nombre_1'];
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $stmt->close();
     $conn->close();
-    header("Location: ../perfil.php");
+    header("Location: ../profile.php");
     exit;
 
 }

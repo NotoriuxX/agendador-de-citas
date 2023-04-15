@@ -2,7 +2,7 @@
 session_start();
 
 // Conexión a la base de datos
-require '../conexion.php';
+require '../Config/database.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $profesion = $_POST['profesion'];
     $descripcion = $_POST['descripcion'];
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt1->close();
     $conn->close();
 
-    header('Location: ../perfil.php'); 
+    header('Location: ../profile.php'); 
 }
 ?>
 

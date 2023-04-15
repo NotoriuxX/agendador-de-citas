@@ -1,8 +1,8 @@
 <?php
 session_start();
-include 'conexion.php';
+include 'Config/database.php';
 
-include 'Verificacion/verificar_sesion.php';
+include 'Processes/session_verification.php';
 
 $userId = $_SESSION['usuario'];
 
@@ -47,7 +47,7 @@ if (mysqli_num_rows($result_usuario) > 0) {
 
 <!DOCTYPE html>
 <html lang="en" >
-    <?php include 'encabezado.php'; ?>
+    <?php include 'Partials/header.php'; ?>
 
             <div class="projects-section projects-profile">
             <div class="button-container">
@@ -82,7 +82,7 @@ if (mysqli_num_rows($result_usuario) > 0) {
 
 
                 <div class="profile_input">
-                    <form class="formulario_1 is-active" data-state="#perfil" action="Verificacion/procesar.php" method="POST" enctype="multipart/form-data">
+                    <form class="formulario_1 is-active" data-state="#perfil" action="Processes/update_profile_data.php" method="POST" enctype="multipart/form-data">
 
                         <label for="descripcion">Datos Perdonales</label>
                         <div class="input_profile">
@@ -106,7 +106,7 @@ if (mysqli_num_rows($result_usuario) > 0) {
                         </div>
                         </form>
 
-                        <form class="formulario_2" id="perfilForm" style="display:none;" data-state="#carta_presentacion" action="Verificacion/procesar_2.php" method="POST" enctype="multipart/form-data">
+                        <form class="formulario_2" id="perfilForm" style="display:none;" data-state="#carta_presentacion" action="Processes/update_cover_letter.php" method="POST" enctype="multipart/form-data">
                          <label for="descripcion">Carta de Presentación:</label>
                          <div  class="input_profile_2"> 
                             <input type="text" placeholder ="Nombres" value="<?php echo $user['nombre_1']." ";  echo $user['apellido_1']; ?>" name="Nombres" id="Nombres" disabled>

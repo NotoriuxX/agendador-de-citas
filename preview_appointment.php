@@ -1,8 +1,8 @@
 
 <?php
 session_start();
-include 'conexion.php';
-include 'Verificacion/verificar_sesion.php';
+include 'Config/database.php';
+include 'Processes/session_verification.php';
 
 if (isset($_POST['date-from'])) {
     $date_from = $_POST['date-from'];
@@ -33,7 +33,7 @@ if (isset($_POST['date-from'])) {
     $_SESSION['intervals'] = $intervals;
 
 } else {
-    header("Location: agendar_citas.php");
+    header("Location: schedule_appointments.php");
     exit;
 }
 
@@ -85,9 +85,9 @@ foreach ($selected_days as $day) {
 
 <!DOCTYPE html>
 <html lang="en" >
-<?php include 'encabezado.php'; ?>  
+<?php include 'Partials/header.php'; ?>  
 <head>
-  <link rel="stylesheet" href="css/custom-bootstrap.css">
+  <link rel="stylesheet" href="css/calendar_appointment.css">
   
 </head>
 <body>
@@ -100,7 +100,7 @@ foreach ($selected_days as $day) {
 </div>
 
     <div class="custom-container">
-     <form id="date-form" method="post" action="previsualisar_calendario.php" style="min-width:1000px;">
+     <form id="date-form" method="post" action="preview_calendar.php" style="min-width:1000px;">
      <input type="hidden" name="date-from" value="<?php echo $date_from; ?>">
     <input type="hidden" name="date-to" value="<?php echo $date_to; ?>">
     <input type="hidden" name="dias" value="<?php echo implode(',', $selected_days); ?>">

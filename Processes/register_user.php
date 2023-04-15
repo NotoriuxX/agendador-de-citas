@@ -1,5 +1,5 @@
 <?php
-include '../conexion.php';
+include '../Config/database.php';
 
 // Sanitizar y validar los datos del formulario
 $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);

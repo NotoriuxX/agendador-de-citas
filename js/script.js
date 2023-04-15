@@ -43,7 +43,48 @@ function toggleDropdown(event) {
   });
   
 
+/*-----DACK-----*/
+function toggleDarkMode() {
+  const bodyElement = document.querySelector('html');
+  bodyElement.classList.toggle('dark');
+}
 
+function redirige() {
+  window.location.href = 'profile.php';
+}
+
+function getDisabledDates() {
+  const startDateElement = document.getElementById('fecha-inicio');
+  const endDateElement = document.getElementById('fecha-fin');
+
+  if (!startDateElement || !endDateElement) {
+      return [];
+  }
+
+  const startDate = new Date(startDateElement.value);
+  const endDate = new Date(endDateElement.value);
+  const checkboxes = document.querySelectorAll('#dias-semana-personalizado input[type="checkbox"]');
+
+  let disabledDates = [];
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+      const currentWeekday = currentDate.getDay();
+      const currentDayLabel = getDayLabel(currentWeekday);
+
+      const isDisabled = Array.from(checkboxes).some(checkbox => {
+          return checkbox.checked && checkbox.value === currentDayLabel;
+      });
+
+      if (!isDisabled) {
+          disabledDates.push(new Date(currentDate));
+      }
+
+      currentDate.setDate(currentDate.getDate() - 1);
+  }
+
+  return disabledDates;
+}
 
 //---------------------------------login------------------------------
 //Ejecutando funciones
@@ -134,73 +175,10 @@ function togglePasswordVisibility(passwordId, eyeIcon) {
 }
 }
 /*--------------------listView-------------------------*/
-if (window.location.pathname.endsWith('inicio.php')) {
 
 
-    function applyListView() {
-        // Remueve la clase "active" del botón de "Grid View"
-        document.getElementById("gridViewBtn").classList.remove("active");
-      
-        // Agrega la clase "active" al botón de "List View"
-        document.getElementById("listViewBtn").classList.add("active");
-      
-        // Agrega la clase "active" a los elementos relevantes
-        const elements = document.querySelectorAll(".project-box-wrapper, .project-boxes.jsGridView, .project-box, .project-box-header, .more-wrapper, .project-box-content-header, .box-content-header, .box-content-subheader, .project-box-footer, .box-progress-wrapper");
-        elements.forEach(element => {
-          element.classList.add("active");
-        });
-      }
-      
-      function applyGridView() {
-        // Remueve la clase "active" del botón de "List View"
-        document.getElementById("listViewBtn").classList.remove("active");
-      
-        // Agrega la clase "active" al botón de "Grid View"
-        document.getElementById("gridViewBtn").classList.add("active");
-      
-        // Remueve la clase "active" de los elementos relevantes
-        const elements = document.querySelectorAll(".project-box-wrapper, .project-boxes.jsGridView, .project-box, .project-box-header, .more-wrapper, .project-box-content-header, .box-content-header, .box-content-subheader, .project-box-footer, .box-progress-wrapper");
-        elements.forEach(element => {
-          element.classList.remove("active");
-        });
-      }
-      
-      document.getElementById("listViewBtn").addEventListener("click", function() {
-        applyListView();
-        localStorage.setItem("view", "list");
-      });
-      
-      document.getElementById("gridViewBtn").addEventListener("click", function() {
-        applyGridView();
-        localStorage.setItem("view", "grid");
-      });
-      
-      // Cargar la selección guardada al cargar la página
-      document.addEventListener("DOMContentLoaded", function() {
-        const savedView = localStorage.getItem("view");
-        if (savedView === "list") {
-          applyListView();
-        } else if (savedView === "grid") {
-          applyGridView();
-        }
-      });
-      
 
-
-}
-
-/*-----DACK-----*/
-function toggleDarkMode() {
-    const bodyElement = document.querySelector('html');
-    bodyElement.classList.toggle('dark');
-}
-
-function redirige() {
-    window.location.href = 'perfil.php';
-}
-
-
-if (window.location.pathname.endsWith('perfil.php')) {
+if (window.location.pathname.endsWith('profile.php')) {
     /*-----profile-card----*/
     const buttons = document.querySelectorAll(".card-buttons button");
     const sections = document.querySelectorAll(".card-section");
@@ -288,7 +266,7 @@ if (window.location.pathname.endsWith('perfil.php')) {
                 formData.append('user_id', userId);
     
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'Verificacion/upload_image.php', true);
+                xhr.open('POST', 'Processes/upload_image.php', true);
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         const response = JSON.parse(xhr.responseText);
@@ -313,7 +291,7 @@ if (window.location.pathname.endsWith('perfil.php')) {
     
     document.getElementById("delete-img-btn").addEventListener("click", function () {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "Verificacion/delete_image.php", true);
+        xhr.open("POST", "Processes/delete_image.php", true);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     
         xhr.onreadystatechange = function () {
@@ -348,7 +326,7 @@ function updateVisibilityStatus() {
     const visibilityStatus = isChecked ? "visible" : "ocultar";
 
     // Reemplaza la URL con la dirección de tu archivo PHP para procesar la actualización de la visibilidad
-    const updateUrl = "Verificacion/update_visibility.php";
+    const updateUrl = "Processes/update_visibility.php";
 
     fetch(updateUrl, {
         method: "POST",
@@ -430,40 +408,66 @@ document.addEventListener('DOMContentLoaded', function() {
 
 }
 
-function getDisabledDates() {
-    const startDateElement = document.getElementById('fecha-inicio');
-    const endDateElement = document.getElementById('fecha-fin');
 
-    if (!startDateElement || !endDateElement) {
-        return [];
+
+if (window.location.pathname.endsWith('default.php')) {
+
+
+  function applyListView() {
+      // Remueve la clase "active" del botón de "Grid View"
+      document.getElementById("gridViewBtn").classList.remove("active");
+    
+      // Agrega la clase "active" al botón de "List View"
+      document.getElementById("listViewBtn").classList.add("active");
+    
+      // Agrega la clase "active" a los elementos relevantes
+      const elements = document.querySelectorAll(".project-box-wrapper, .project-boxes.jsGridView, .project-box, .project-box-header, .more-wrapper, .project-box-content-header, .box-content-header, .box-content-subheader, .project-box-footer, .box-progress-wrapper");
+      elements.forEach(element => {
+        element.classList.add("active");
+      });
     }
-
-    const startDate = new Date(startDateElement.value);
-    const endDate = new Date(endDateElement.value);
-    const checkboxes = document.querySelectorAll('#dias-semana-personalizado input[type="checkbox"]');
-
-    let disabledDates = [];
-    let currentDate = new Date(startDate);
-
-    while (currentDate <= endDate) {
-        const currentWeekday = currentDate.getDay();
-        const currentDayLabel = getDayLabel(currentWeekday);
-
-        const isDisabled = Array.from(checkboxes).some(checkbox => {
-            return checkbox.checked && checkbox.value === currentDayLabel;
-        });
-
-        if (!isDisabled) {
-            disabledDates.push(new Date(currentDate));
-        }
-
-        currentDate.setDate(currentDate.getDate() - 1);
+    
+    function applyGridView() {
+      // Remueve la clase "active" del botón de "List View"
+      document.getElementById("listViewBtn").classList.remove("active");
+    
+      // Agrega la clase "active" al botón de "Grid View"
+      document.getElementById("gridViewBtn").classList.add("active");
+    
+      // Remueve la clase "active" de los elementos relevantes
+      const elements = document.querySelectorAll(".project-box-wrapper, .project-boxes.jsGridView, .project-box, .project-box-header, .more-wrapper, .project-box-content-header, .box-content-header, .box-content-subheader, .project-box-footer, .box-progress-wrapper");
+      elements.forEach(element => {
+        element.classList.remove("active");
+      });
     }
+    
+    document.getElementById("listViewBtn").addEventListener("click", function() {
+      applyListView();
+      localStorage.setItem("view", "list");
+    });
+    
+    document.getElementById("gridViewBtn").addEventListener("click", function() {
+      applyGridView();
+      localStorage.setItem("view", "grid");
+    });
+    
+    // Cargar la selección guardada al cargar la página
+    document.addEventListener("DOMContentLoaded", function() {
+      const savedView = localStorage.getItem("view");
+      if (savedView === "list") {
+        applyListView();
+      } else if (savedView === "grid") {
+        applyGridView();
+      }
+    });
+    
 
-    return disabledDates;
+
 }
 
-if (window.location.pathname.endsWith('agendar_citas.php')) {
+
+
+if (window.location.pathname.endsWith('schedule_appointments.php')) {
 
     let generalizadoRadio;
     
@@ -1020,7 +1024,7 @@ $(document).ready(function() {
   }
   
   document.querySelector('.btn-back').addEventListener('click', function () {
-    window.location.href = 'agendar_citas.php';
+    window.location.href = 'schedule_appointments.php';
   });
   
 
@@ -1062,7 +1066,7 @@ $(document).ready(function() {
 
 
 
-if (window.location.pathname.endsWith('previsualizar_citas.php')) {
+if (window.location.pathname.endsWith('preview_appointment.php')) {
   function formatSlotsForDisplay(groupedSlots) {
     let result = '';
 

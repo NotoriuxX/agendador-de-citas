@@ -1,7 +1,7 @@
 <?php
 session_start();
 // Incluir el archivo de conexión
-include '../conexion.php';
+include '../Config/database.php';
 
 // Obtener el JSON enviado desde JavaScript
 $input = file_get_contents('php://input');

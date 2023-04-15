@@ -1,6 +1,6 @@
 <?php
 // Conectar a la base de datos y obtener la variable $conn
-require '../conexion.php';
+require '../Config/database.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {

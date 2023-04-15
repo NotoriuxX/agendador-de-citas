@@ -9,7 +9,7 @@ if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST
     die('Operación no autorizada');
 }
 
-include '../conexion.php';
+include '../Config/database.php';
 
 $correo = htmlspecialchars($_POST['correo']);
 $contraseña = htmlspecialchars($_POST['contraseña']);
@@ -29,7 +29,7 @@ if (mysqli_num_rows($result) > 0) {
         $_SESSION['usuario'] = $row['id_usuario'];
         switch ($row['rol']) {
             case 'usuario_normal':
-                header('location: ../inicio.php');
+                header('location: ../default.php');
                 break;
 
             case 'administrador':

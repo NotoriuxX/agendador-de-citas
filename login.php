@@ -1,9 +1,9 @@
 <?php
-    include 'conexion.php';
+    include 'Config/database.php';
     session_start();
 
     if(isset($_SESSION['usuario'])){
-        header("location: inicio.php");
+        header("location: default.php");
     }
     if(isset($_GET['cerrar_sesion'])){
         session_unset();
@@ -45,7 +45,7 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 <!--Formulario de Login y registro-->
                 <div class="contenedor__login-register">
                     <!--Login-->
-                    <form action="Verificacion/login.php" method="POST" class="formulario__login" enctype="multipart/form-data">
+                    <form action="Processes/verify_login.php" method="POST" class="formulario__login" enctype="multipart/form-data">
                         <h2>Iniciar Sesión</h2>
                         <input type="text" placeholder="Correo Electronico" name="correo">
                         <div class="input-container">
@@ -57,7 +57,7 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                     </form>
 
                     <!--Register-->
-                    <form action="Verificacion/registro.php" method="POST" class="formulario__register" enctype="multipart/form-data">
+                    <form action="Processes/register_user.php" method="POST" class="formulario__register" enctype="multipart/form-data">
                         <h2>Regístrarse</h2>
                         <input type="text" placeholder="Nombre" name="nombre" require>
                         <input type="text" placeholder="Apellido" name="apellido" require>

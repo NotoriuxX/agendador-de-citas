@@ -1,7 +1,7 @@
 <?php 
 session_start();
-include 'conexion.php';
-include 'Verificacion/verificar_sesion.php';
+include 'Config/database.php';
+include 'Processes/session_verification.php';
 
 
 if (isset($_SESSION['date_from'])) {
@@ -16,7 +16,7 @@ if (isset($_SESSION['date_from'])) {
     $_SESSION['selected_slots'] = json_decode($_POST['selected-slots-json'], true);
     $_SESSION['created_slots'] = json_decode($_POST['created-slots-json'], true);
 } else {
-    header("Location: agendar_citas.php");
+    header("Location: schedule_appointments.php");
     exit;
 }
 $raw_selected_slots = isset($_SESSION['selected_slots']) ? array_change_key_case($_SESSION['selected_slots'], CASE_LOWER) : [];
@@ -82,10 +82,9 @@ foreach ($selected_days as $day) {
 ?>
 <!DOCTYPE html>
 <html lang="en" >
-<?php include 'encabezado.php'; ?>  
+<?php include 'Partials/header.php'; ?>  
 <head>
-    <link rel="stylesheet" href="css/calendario.css">
-    <link rel="stylesheet" href="css/previsualizar_calendario.css">
+    <link rel="stylesheet" href="css/calendar.css">
 </head>
 <body>
 <div class="projects-section">
@@ -116,5 +115,6 @@ foreach ($selected_days as $day) {
 
     </script>
     <script src="js/calendario.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <?php
 $current_url = basename($_SERVER['REQUEST_URI']);
 $nav_links = [
-    'home' => 'inicio.php',
+    'home' => 'default.php',
     'link2' => '#',
     'calendario' => 'calendario.php',
     'link4' => '#',
@@ -57,7 +57,7 @@ $nav_links = [
                 </button>
                 <div id="dropdown" class="dropdown">
                 <a href="crear_formulario.php" id="a_form">Crear formulario</a>
-                <a href="agendar_citas.php" id="a_cita">Crear agendar citas</a>
+                <a href="schedule_appointments.php" id="a_cita">Crear agendar citas</a>
                 </div>
                 <button class="notification-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell">
