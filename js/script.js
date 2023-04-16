@@ -1163,9 +1163,55 @@ function getCreatedSlots() {
 
 }//fin if
 
-if (window.location.pathname.endsWith('calendario_personalizado.php')) {
+if (window.location.pathname.endsWith('preview_calendar.php')) {
 
- 
+  document.getElementById("btn-back").addEventListener("click", () => {
+    window.location.href = "preview_appointment.php";
+  });
+
+  document.getElementById("btn-generar-calendario").addEventListener("click", (event) => {
+    event.preventDefault();
+    const form = document.getElementById("calendar-form");
+    const formData = new FormData(form);
+
+    // Muestra el overlay de carga
+    document.getElementById("loading-overlay").style.display = "flex";
+    formData.append('selected-slots-json', JSON.stringify(selectedSlots));
+    formData.append('created-slots-json', JSON.stringify(createdSlots));
+    formData.append('generate-calendar', '1');
+
+
+    // Envía la solicitud AJAX
+    fetch("Processes/save_calendar.php", {
+      method: "POST",
+      body: formData,
+  })
+      .then((response) => response.json())
+      .then((data) => {
+          if (data.status === 'success') {
+              // Oculta el overlay de carga
+              document.getElementById("loading-overlay").style.display = "none";
+              // Muestra el ícono de éxito
+              document.getElementById("success-overlay").style.display = "flex";
+              setTimeout(() => {
+                  document.getElementById("success-overlay").style.display = "none";
+              }, 3000);
+          } else {
+              throw new Error(data.message);
+          }
+      })
+      .catch((error) => {
+          console.error(error);
+          // Oculta el overlay de carga
+          document.getElementById("loading-overlay").style.display = "none";
+          // Muestra el ícono de error
+          document.getElementById("error-overlay").style.display = "flex";
+          setTimeout(() => {
+              document.getElementById("error-overlay").style.display = "none";
+          }, 3000);
+      });
+});
+
   
   
 }//fin if

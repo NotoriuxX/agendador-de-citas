@@ -22,6 +22,18 @@ CREATE TABLE usuarios (
     telefono VARCHAR(20),
     contraseña VARCHAR(255) NOT NULL
 );
+CREATE TABLE calendarios (
+    id_calendario INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    date_from DATE NOT NULL,
+    date_to DATE NOT NULL,
+    selected_days VARCHAR(255) NOT NULL,
+    custom_days_to_remove TEXT,
+    slots_config JSON,
+    nombre VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
 
 CREATE TABLE cartas_presentacion (
     id_carta_presentacion INT AUTO_INCREMENT PRIMARY KEY,
@@ -85,11 +97,6 @@ CREATE TABLE datos_adicionales (
     FOREIGN KEY (id_dato_adicional_tipo) REFERENCES datos_adicionales_tipos(id_dato_adicional_tipo),
     FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
 );
-
-
-
-
-
 CREATE TABLE horarios (
     id_horario INT AUTO_INCREMENT PRIMARY KEY,
     id_fecha_hora_disponible INT,

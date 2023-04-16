@@ -2,116 +2,60 @@
 session_start();
 include 'Config/database.php';
 include 'Processes/session_verification.php';
-
-
-if (isset($_SESSION['date_from'])) {
-    $date_from = $_SESSION['date_from'];
-    $date_to = $_SESSION['date_to'];
-    $selected_days = $_SESSION['selected_days'];
-    $eliminar_dias = $_SESSION['eliminar_dias'];
-    $custom_days_to_remove = $_SESSION['custom_days_to_remove'];
-    $start_times = $_SESSION['start_times'];
-    $end_times = $_SESSION['end_times'];
-    $intervals = $_SESSION['intervals'];
-    $_SESSION['selected_slots'] = json_decode($_POST['selected-slots-json'], true);
-    $_SESSION['created_slots'] = json_decode($_POST['created-slots-json'], true);
-} else {
-    header("Location: schedule_appointments.php");
-    exit;
-}
-$raw_selected_slots = isset($_SESSION['selected_slots']) ? array_change_key_case($_SESSION['selected_slots'], CASE_LOWER) : [];
-$created_slots = isset($_SESSION['created_slots']) ? array_change_key_case($_SESSION['created_slots'], CASE_LOWER) : [];
-
-
-echo "Fecha desde: " . $date_from . "<br>";
-echo "Fecha hasta: " . $date_to . "<br>";
-echo "Días seleccionados: " . implode(", ", $selected_days) . "<br>";
-
-echo "Eliminar días: " . ($eliminar_dias ? "Sí" : "No") . "<br>";
-echo "Días personalizados a eliminar: " . $custom_days_to_remove . "<br>";
-
-
-//imprime las horas eliminada de cada dias en el array
-$selected_slots = [];
-foreach ($raw_selected_slots as $slot) {
-    if (is_array($slot) && isset($slot['day']) && isset($slot['slot'])) {
-        $day = $slot['day'];
-        $time = $slot['slot'];
-        if (!isset($selected_slots[$day])) {
-            $selected_slots[$day] = [];
-        }
-        $selected_slots[$day][] = $time;
-    }
-}
-
-foreach ($selected_slots as $day => $slots_to_remove) {
-    if (isset($created_slots[$day])) {
-        $created_slots[$day] = array_values(array_diff($created_slots[$day], $slots_to_remove));
-    }
-}
-
-
-
-echo "Horas eliminadas: <br>";
-foreach ($selected_slots as $day => $slots) {
-    echo $day . ": " . implode(", ", $slots) . "<br>";
-}
-
-echo "Horas creadas: ";
-foreach ($created_slots as $day => $slots) {
-    echo $day . ": " . implode(", ", $slots) . "<br>";
-}
-
-
-
-
-foreach ($selected_days as $day) {
-    echo "Día: " . $day . "<br>";
-    if (isset($start_times[$day])) {
-        echo "Horarios de inicio: " . implode(", ", $start_times[$day]) . "<br>";
-    }
-    if (isset($end_times[$day])) {
-        echo "Horarios de finalización: " . implode(", ", $end_times[$day]) . "<br>";
-    }
-    if (isset($intervals[$day])) {
-        echo "Intervalos: " . implode(", ", $intervals[$day]) . "<br>";
-    }
-    
-}
-
+$environment = 'preview_calendar';
+include 'Processes/Processes_generate_appointments.php';
 ?>
 <!DOCTYPE html>
 <html lang="en" >
-<?php include 'Partials/header.php'; ?>  
-<head>
-    <link rel="stylesheet" href="css/calendar.css">
-</head>
+<?php $additional_styles = '<link rel="stylesheet" href="css/calendar.css">'; // activa en css
+include 'Partials/header.php'; ?> 
 <body>
-<div class="projects-section">
-    <div class="calendario-contenedor">
-        <div class="calendario-container" id="calendario-container">
-            <div class="top-calendar">
-                <div class="button-calendar">
-                    <button id="anterior"><</button>
-                    <button id="siguiente">></button>
-                </div>
-                <h2 id="mes-titulo"></h2>
+    <div class="projects-section">
+            <div class="timeline">
+                <div class="step">Paso 1: Seleccionar Días</div>
+                <div class="step">Paso 2: Elegir ranco horas</div>
+                <div class="step">Paso 3: Previsualizar Horas</div>
+                <div class="step active">Paso 4: Confirmar y guardar</div>
             </div>
-            <div id="dias-semana"></div>
-            <div id="calendario"></div>
-        </div>
-        <div id="horarios-container">
-        </div>
-    </div>
-    
-</div>
+            <form id="calendar-form" method="post">
+                <div class="calendario-contenedor">
+                    <div class="calendario-container" id="calendario-container">
+                        <div class="top-calendar">
+                            <div class="button-calendar">
+                                <button id="anterior"><</button>
+                                <button id="siguiente">></button>
+                            </div>
+                            <h2 id="mes-titulo"></h2>
+                        </div>
+                        <div id="dias-semana"></div>
+                        <div id="calendario"></div>
+                    </div>
+                    <div id="horarios-container">
+                    </div>
+                </div>
+                <div class="buttons-container" style="width: 100%; display: flex; justify-content:space-between; margin:34px 0 0px;" >
+                    <button type="submit" id="btn-back">Atrás</button>
+                    <button type="button" id="btn-generar-calendario" name="generate-calendar">Generar calendario</button>
 
+                </div>   
+                
+            </form>
+            <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+                <div class="loader"></div>
+            </div>
+            <div id="success-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+                <i class="fas fa-check-circle" style="color: #4caf50; font-size: 48px;"></i>
+            </div>
+            <div id="error-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+                <i class="fas fa-times-circle" style="color: #f44336; font-size: 48px;"></i>
+            </div>
+    </div>
     <script>
         const dateFrom = '<?php echo $date_from; ?>';
         const dateTo = '<?php echo $date_to; ?>';
         const customDaysToRemove = '<?php echo $custom_days_to_remove; ?>';
         const createdSlots = <?php echo json_encode($created_slots); ?>;
-        
+        const selectedSlots = <?php echo json_encode($selected_slots); ?>;
 
     </script>
     <script src="js/calendario.js"></script>

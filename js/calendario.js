@@ -51,7 +51,7 @@ function seleccionarDia(celda) {
     const fechaSeleccionada = new Date(anioActual, mesActual, parseInt(celda.textContent));
     const diaSemana = ajustarNombreDia(fechaSeleccionada.toLocaleString("es-ES", { weekday: "long" }).toLowerCase());
     const horasCreadas = createdSlots[diaSemana] || [];
-    console.log("Horas creadas para el día:", horasCreadas);
+    //console.log("Horas creadas para el día:", horasCreadas);
 
     let tituloHoras = document.createElement("div");
     tituloHoras.classList.add("titulo-horas-calendario");
@@ -135,14 +135,14 @@ let horasBloqueadas = {};
         if (celdaFecha >= dateFromObj && celdaFecha < dateToObj && !customDaysToRemoveArray.includes(celdaFecha.toISOString().substring(0, 10))) {
             const diaSemana = ajustarNombreDia(celdaFecha.toLocaleString("es-ES", { weekday: "long" }).toLowerCase());
             if (createdSlots[diaSemana] && createdSlots[diaSemana].length > 0) {
-                console.log("Celda habilitada:", celdaFecha);
+                //console.log("Celda habilitada:", celdaFecha);
                 celda.addEventListener("click", () => seleccionarDia(celda));
             } else {
-                console.log("Celda bloqueada (sin horas disponibles):", celdaFecha);
+                //console.log("Celda bloqueada (sin horas disponibles):", celdaFecha);
                 celda.classList.add("dia-bloqueado");
             }
         } else {
-            console.log("Celda bloqueada (fuera del rango):", celdaFecha);
+            //console.log("Celda bloqueada (fuera del rango):", celdaFecha);
             celda.classList.add("dia-bloqueado");
         }
 
